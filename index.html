@@ -306,7 +306,7 @@
     }
 
     async function startCamera(videoElement, faceMesh) {
-      return new Promise(resolve => {
+      return new Promise((resolve, reject) => {
         const camera = new Camera(videoElement, {
           onFrame: async () => {
             await faceMesh.send({ image: videoElement });
@@ -318,7 +318,7 @@
           state.camera = camera;
           state.videoEl = videoElement;
           resolve(camera);
-        });
+        }).catch(reject);
       });
     }
 
