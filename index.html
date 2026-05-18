@@ -219,7 +219,14 @@
 
   <!-- Scene 2: 가위바위보 -->
   <div id="scene-rps" class="scene">
-    <h2>가위바위보</h2>
+    <h2 style="font-size:22px;font-weight:900;">가위바위보로<br>역할을 정합니다</h2>
+    <div class="rps-buttons">
+      <button class="rps-btn" data-choice="scissors">✌️</button>
+      <button class="rps-btn" data-choice="rock">✊</button>
+      <button class="rps-btn" data-choice="paper">🖐️</button>
+    </div>
+    <div id="rps-result" class="rps-result"></div>
+    <div id="rps-role-display" style="font-size:14px;color:#888;min-height:20px;"></div>
   </div>
 
   <!-- Scene 3: 게임 라운드 -->
@@ -343,6 +350,47 @@
         initRpsScene();
       });
     })();
+
+    // ── 가위바위보 씬 ──────────────────────────────────────────
+    const RPS_CHOICES = ['scissors', 'rock', 'paper'];
+    const RPS_EMOJI = { scissors: '✌️', rock: '✊', paper: '🖐️' };
+    const RPS_WIN = { scissors: 'paper', rock: 'scissors', paper: 'rock' };
+
+    function initRpsScene() {
+      const resultEl = document.getElementById('rps-result');
+      const roleEl = document.getElementById('rps-role-display');
+      resultEl.textContent = '';
+      roleEl.textContent = '';
+
+      document.querySelectorAll('.rps-btn').forEach(btn => {
+        btn.onclick = () => {
+          const playerChoice = btn.dataset.choice;
+          const aiChoice = RPS_CHOICES[Math.floor(Math.random() * 3)];
+
+          resultEl.textContent = `나: ${RPS_EMOJI[playerChoice]}  vs  AI: ${RPS_EMOJI[aiChoice]}`;
+
+          if (playerChoice === aiChoice) {
+            roleEl.textContent = '비겼어요! 다시 선택하세요.';
+            return;
+          }
+
+          if (RPS_WIN[playerChoice] === aiChoice) {
+            state.playerRole = 'attacker';
+            state.aiRole = 'defender';
+            roleEl.textContent = '🎉 이겼습니다! 공격자가 됩니다.';
+          } else {
+            state.playerRole = 'defender';
+            state.aiRole = 'attacker';
+            roleEl.textContent = '😅 졌습니다! 수비자가 됩니다.';
+          }
+
+          state.defenseStreak = 0;
+          state.totalRounds = 0;
+
+          setTimeout(() => startGameScene(), 1500);
+        };
+      });
+    }
   </script>
 </body>
 </html>
