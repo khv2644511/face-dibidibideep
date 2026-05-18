@@ -480,11 +480,11 @@
     }
 
     // ── 게임 씬 진입 ───────────────────────────────────────────
-    function startGameScene() {
+    async function startGameScene() {
       const gameVideo = document.getElementById('webcam-video');
       if (state.videoEl && state.videoEl !== gameVideo) {
         state.camera.stop();
-        startCamera(gameVideo, state.faceMesh).then(() => {});
+        await startCamera(gameVideo, state.faceMesh);
       }
 
       showScene('scene-game');
@@ -541,7 +541,17 @@
 
     // ── 라운드 판정 ────────────────────────────────────────────
     function resolveRound() {
-      const playerExpr = detectExpression(state.lastLandmarks) || 'neutral';
+      const playerExpr = detectExpression(state.lastLandmarks);
+
+      if (!playerExpr || playerExpr === 'neutral') {
+        document.getElementById('action-hint').textContent = '표정을 인식하지 못했어요! 다시 시도하세요.';
+        document.getElementById('countdown-display').textContent = '';
+        document.getElementById('dibidibideep-text').textContent = '';
+        document.getElementById('dibidibideep-text').classList.remove('dibidibideep-enter');
+        document.getElementById('btn-ready').style.display = 'inline-block';
+        return;
+      }
+
       const aiExpr = EXPRESSIONS[Math.floor(Math.random() * EXPRESSIONS.length)];
 
       document.getElementById('ai-face-img').src = AI_IMAGES[aiExpr];
