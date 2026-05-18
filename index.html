@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>페이스 디비디비딥</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0a0f;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .scene { display: none; width: 100%; max-width: 480px; padding: 20px; }
+    .scene.active { display: flex; flex-direction: column; align-items: center; }
+  </style>
+</head>
+<body>
+  <!-- Scene 1: 타이틀 -->
+  <div id="scene-title" class="scene active">
+    <h1>페이스 디비디비딥</h1>
+    <button id="btn-start">시작하기</button>
+  </div>
+
+  <!-- Scene 2: 가위바위보 -->
+  <div id="scene-rps" class="scene">
+    <h2>가위바위보</h2>
+  </div>
+
+  <!-- Scene 3: 게임 라운드 -->
+  <div id="scene-game" class="scene">
+    <h2>게임</h2>
+  </div>
+
+  <!-- Scene 4: 게임 오버 -->
+  <div id="scene-gameover" class="scene">
+    <h2>게임 종료</h2>
+  </div>
+
+  <script>
+    // 씬 전환 함수
+    function showScene(id) {
+      document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    // 임시 테스트용
+    document.getElementById('btn-start').addEventListener('click', () => showScene('scene-rps'));
+  </script>
+</body>
+</html>
