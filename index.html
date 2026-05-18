@@ -231,12 +231,56 @@
 
   <!-- Scene 3: 게임 라운드 -->
   <div id="scene-game" class="scene">
-    <h2>게임</h2>
+    <!-- 수비 연속 카운터 -->
+    <div class="counter-bar">
+      <span style="font-size:12px;color:#aaa;">수비 연속</span>
+      <div class="counter-circles" id="counter-dots"></div>
+      <span id="counter-text" style="font-size:12px;color:#aaa;">0 / 5</span>
+    </div>
+
+    <!-- 얼굴 영역 -->
+    <div class="faces-area">
+      <!-- AI 패널 -->
+      <div class="face-panel">
+        <span id="ai-role-label" class="role-label attacker">공격자</span>
+        <div class="face-frame attacker" id="ai-face-frame">
+          <img id="ai-face-img" src="assets/neutral.jpg" alt="AI">
+        </div>
+        <span class="face-label">AI 상대</span>
+        <span id="ai-expression-badge" class="expression-badge">😐 대기 중</span>
+      </div>
+
+      <div class="vs-divider">VS</div>
+
+      <!-- 플레이어 패널 -->
+      <div class="face-panel">
+        <span id="player-role-label" class="role-label defender">수비자</span>
+        <div class="face-frame defender">
+          <video id="webcam-video" playsinline autoplay muted></video>
+        </div>
+        <span class="face-label">나</span>
+        <span id="player-expression-badge" class="expression-badge">😐 대기 중</span>
+      </div>
+    </div>
+
+    <!-- 액션 영역 -->
+    <div class="action-area">
+      <div id="dibidibideep-text" class="dibidibideep-text"></div>
+      <div id="action-hint" class="action-hint">준비되면 버튼을 누르세요</div>
+      <div id="countdown-display" class="countdown-display"></div>
+      <button id="btn-ready" class="btn btn-primary">준비!</button>
+    </div>
   </div>
+
+  <!-- 결과 오버레이 -->
+  <div id="result-overlay" class="result-overlay hidden"></div>
 
   <!-- Scene 4: 게임 오버 -->
   <div id="scene-gameover" class="scene">
-    <h2>게임 종료</h2>
+    <div style="font-size:64px;">🏆</div>
+    <div id="winner-text" class="winner-text"></div>
+    <div id="rounds-text" class="rounds-text"></div>
+    <button id="btn-replay" class="btn btn-primary" style="margin-top:16px;">다시하기</button>
   </div>
 
   <script>
@@ -390,6 +434,176 @@
           setTimeout(() => startGameScene(), 1500);
         };
       });
+    }
+    // ── 카운터 도트 렌더링 ─────────────────────────────────────
+    function renderCounterDots(streak) {
+      const container = document.getElementById('counter-dots');
+      container.innerHTML = '';
+      for (let i = 0; i < 5; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'counter-dot' + (i < streak ? ' filled' : '');
+        container.appendChild(dot);
+      }
+      document.getElementById('counter-text').textContent = `${streak} / 5`;
+    }
+
+    // ── AI 이미지 / 표정 맵 ────────────────────────────────────
+    const AI_IMAGES = {
+      neutral:    'assets/neutral.jpg',
+      wink_left:  'assets/wink_left.jpg',
+      wink_right: 'assets/wink_right.jpg',
+      tongue:     'assets/tongue.jpg',
+    };
+
+    const EXPRESSION_LABEL = {
+      neutral:    '😐 대기 중',
+      wink_left:  '😉 왼쪽 윙크',
+      wink_right: '😉 오른쪽 윙크',
+      tongue:     '😛 메롱',
+    };
+
+    const EXPRESSIONS = ['wink_left', 'wink_right', 'tongue'];
+
+    function updateRoleUI() {
+      const aiRoleEl = document.getElementById('ai-role-label');
+      const playerRoleEl = document.getElementById('player-role-label');
+      const aiFrame = document.getElementById('ai-face-frame');
+      const playerFrame = document.querySelector('#scene-game .face-panel:last-child .face-frame');
+
+      aiRoleEl.textContent = state.aiRole === 'attacker' ? '공격자' : '수비자';
+      aiRoleEl.className = 'role-label ' + state.aiRole;
+      playerRoleEl.textContent = state.playerRole === 'attacker' ? '공격자' : '수비자';
+      playerRoleEl.className = 'role-label ' + state.playerRole;
+
+      aiFrame.className = 'face-frame ' + state.aiRole;
+      playerFrame.className = 'face-frame ' + state.playerRole;
+    }
+
+    // ── 게임 씬 진입 ───────────────────────────────────────────
+    function startGameScene() {
+      const gameVideo = document.getElementById('webcam-video');
+      if (state.videoEl && state.videoEl !== gameVideo) {
+        state.camera.stop();
+        startCamera(gameVideo, state.faceMesh).then(() => {});
+      }
+
+      showScene('scene-game');
+      renderCounterDots(state.defenseStreak);
+      updateRoleUI();
+      document.getElementById('ai-face-img').src = AI_IMAGES.neutral;
+      document.getElementById('ai-expression-badge').textContent = EXPRESSION_LABEL.neutral;
+      document.getElementById('player-expression-badge').textContent = EXPRESSION_LABEL.neutral;
+      document.getElementById('dibidibideep-text').textContent = '';
+      document.getElementById('action-hint').textContent = '준비되면 버튼을 누르세요';
+      document.getElementById('countdown-display').textContent = '';
+
+      const btnReady = document.getElementById('btn-ready');
+      btnReady.style.display = 'inline-block';
+      btnReady.onclick = startRound;
+    }
+
+    // ── 라운드 시작 ────────────────────────────────────────────
+    function startRound() {
+      state.totalRounds++;
+      const btnReady = document.getElementById('btn-ready');
+      btnReady.style.display = 'none';
+
+      const expressionInterval = setInterval(() => {
+        const expr = detectExpression(state.lastLandmarks);
+        if (expr) {
+          document.getElementById('player-expression-badge').textContent = EXPRESSION_LABEL[expr] || EXPRESSION_LABEL.neutral;
+        }
+      }, 200);
+
+      const dibEl = document.getElementById('dibidibideep-text');
+      const hintEl = document.getElementById('action-hint');
+      const countEl = document.getElementById('countdown-display');
+
+      dibEl.textContent = '디비디비딥!';
+      dibEl.classList.add('dibidibideep-enter');
+      hintEl.textContent = '표정을 준비하세요!';
+
+      let count = 3;
+      countEl.textContent = count;
+
+      const countdownTimer = setInterval(() => {
+        count--;
+        if (count > 0) {
+          countEl.textContent = count;
+        } else {
+          clearInterval(countdownTimer);
+          clearInterval(expressionInterval);
+          countEl.textContent = '';
+          resolveRound();
+        }
+      }, 1000);
+    }
+
+    // ── 라운드 판정 ────────────────────────────────────────────
+    function resolveRound() {
+      const playerExpr = detectExpression(state.lastLandmarks) || 'neutral';
+      const aiExpr = EXPRESSIONS[Math.floor(Math.random() * EXPRESSIONS.length)];
+
+      document.getElementById('ai-face-img').src = AI_IMAGES[aiExpr];
+      document.getElementById('ai-expression-badge').textContent = EXPRESSION_LABEL[aiExpr];
+      document.getElementById('player-expression-badge').textContent = EXPRESSION_LABEL[playerExpr];
+      document.getElementById('dibidibideep-text').classList.remove('dibidibideep-enter');
+
+      const isSame = playerExpr === aiExpr;
+      showRoundResult(isSame);
+    }
+
+    // ── 라운드 결과 표시 ───────────────────────────────────────
+    function showRoundResult(attackerWinsRound) {
+      const overlay = document.getElementById('result-overlay');
+
+      if (attackerWinsRound) {
+        overlay.textContent = state.playerRole === 'attacker' ? '😈 공격 성공!' : '😱 잡혔다!';
+        overlay.style.color = '#ff6b6b';
+        state.defenseStreak = 0;
+        [state.playerRole, state.aiRole] = [state.aiRole, state.playerRole];
+      } else {
+        state.defenseStreak++;
+        overlay.textContent = state.playerRole === 'defender'
+          ? `🛡️ 방어 성공! (${state.defenseStreak}/5)`
+          : `🛡️ AI 방어! (${state.defenseStreak}/5)`;
+        overlay.style.color = '#4ecdc4';
+      }
+
+      overlay.classList.remove('hidden');
+
+      setTimeout(() => {
+        overlay.classList.add('hidden');
+
+        if (state.defenseStreak >= 5) {
+          showGameOver();
+        } else {
+          renderCounterDots(state.defenseStreak);
+          updateRoleUI();
+          document.getElementById('ai-face-img').src = AI_IMAGES.neutral;
+          document.getElementById('dibidibideep-text').textContent = '';
+          document.getElementById('action-hint').textContent = '준비되면 버튼을 누르세요';
+          document.getElementById('btn-ready').style.display = 'inline-block';
+        }
+      }, 1200);
+    }
+
+    // ── 게임 오버 ──────────────────────────────────────────────
+    function showGameOver() {
+      const winnerEl = document.getElementById('winner-text');
+      const roundsEl = document.getElementById('rounds-text');
+
+      const defenderIsPlayer = state.playerRole === 'defender';
+      winnerEl.textContent = defenderIsPlayer ? '🎉 수비자(나) 승리!' : '🤖 AI 수비자 승리!';
+      winnerEl.style.color = defenderIsPlayer ? '#4ecdc4' : '#ff6b6b';
+      roundsEl.textContent = `총 ${state.totalRounds}라운드`;
+
+      showScene('scene-gameover');
+
+      document.getElementById('btn-replay').onclick = () => {
+        showScene('scene-rps');
+        initRpsScene();
+      };
     }
   </script>
 </body>
