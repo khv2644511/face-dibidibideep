@@ -204,12 +204,17 @@
     }
     .dibidibideep-enter { animation: dibidibideep-anim 0.4s ease-out forwards; }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
 </head>
 <body>
   <!-- Scene 1: 타이틀 -->
   <div id="scene-title" class="scene active">
-    <h1>페이스 디비디비딥</h1>
-    <button id="btn-start">시작하기</button>
+    <h1>페이스<br>디비디비딥</h1>
+    <p class="subtitle">웹캠으로 표정을 인식하는 얼굴 게임</p>
+    <p id="loading-status" class="loading-text pulsing">웹캠 및 AI 모델 로딩 중...</p>
+    <button id="btn-start" class="btn btn-primary" disabled>시작하기</button>
+    <video id="webcam-video-init" style="display:none" playsinline></video>
   </div>
 
   <!-- Scene 2: 가위바위보 -->
@@ -228,14 +233,116 @@
   </div>
 
   <script>
-    // 씬 전환 함수
+    // ── 전역 상태 ──────────────────────────────────────────────
+    const state = {
+      faceMesh: null,
+      camera: null,
+      videoEl: null,
+      lastLandmarks: null,
+      playerRole: null,
+      aiRole: null,
+      defenseStreak: 0,
+      totalRounds: 0,
+    };
+
+    // ── 씬 전환 ────────────────────────────────────────────────
     function showScene(id) {
       document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
       document.getElementById(id).classList.add('active');
     }
 
-    // 임시 테스트용
-    document.getElementById('btn-start').addEventListener('click', () => showScene('scene-rps'));
+    // ── 표정 감지 상수 ─────────────────────────────────────────
+    const EAR_THRESHOLD = 0.2;
+    const EAR_OPEN_THRESHOLD = 0.25;
+    const LEFT_EYE = [33, 160, 158, 133, 153, 144];
+    const RIGHT_EYE = [362, 385, 387, 263, 373, 380];
+    const TONGUE_TIP = 13;
+    const LOWER_LIP_OUTER = 17;
+    const UPPER_LIP_OUTER = 0;
+
+    function calcEAR(landmarks, indices) {
+      const p = indices.map(i => landmarks[i]);
+      const vertical1 = Math.hypot(p[1].x - p[5].x, p[1].y - p[5].y);
+      const vertical2 = Math.hypot(p[2].x - p[4].x, p[2].y - p[4].y);
+      const horizontal = Math.hypot(p[0].x - p[3].x, p[0].y - p[3].y);
+      return (vertical1 + vertical2) / (2 * horizontal);
+    }
+
+    function detectExpression(landmarks) {
+      if (!landmarks || landmarks.length === 0) return null;
+      const leftEAR = calcEAR(landmarks, LEFT_EYE);
+      const rightEAR = calcEAR(landmarks, RIGHT_EYE);
+
+      const tongueY = landmarks[TONGUE_TIP].y;
+      const lowerLipY = landmarks[LOWER_LIP_OUTER].y;
+      const upperLipY = landmarks[UPPER_LIP_OUTER].y;
+      const mouthHeight = lowerLipY - upperLipY;
+      const tonguePoke = tongueY - lowerLipY;
+      if (tonguePoke > mouthHeight * 0.3) return 'tongue';
+
+      if (leftEAR < EAR_THRESHOLD && rightEAR > EAR_OPEN_THRESHOLD) return 'wink_left';
+      if (rightEAR < EAR_THRESHOLD && leftEAR > EAR_OPEN_THRESHOLD) return 'wink_right';
+
+      return 'neutral';
+    }
+
+    // ── FaceMesh 초기화 ────────────────────────────────────────
+    async function initFaceMesh(videoElement) {
+      const faceMesh = new FaceMesh({
+        locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+      });
+      faceMesh.setOptions({
+        maxNumFaces: 1,
+        refineLandmarks: true,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5,
+      });
+      faceMesh.onResults(results => {
+        state.lastLandmarks = results.multiFaceLandmarks?.[0] || null;
+      });
+      await faceMesh.initialize();
+      state.faceMesh = faceMesh;
+      return faceMesh;
+    }
+
+    async function startCamera(videoElement, faceMesh) {
+      return new Promise(resolve => {
+        const camera = new Camera(videoElement, {
+          onFrame: async () => {
+            await faceMesh.send({ image: videoElement });
+          },
+          width: 320,
+          height: 240,
+        });
+        camera.start().then(() => {
+          state.camera = camera;
+          state.videoEl = videoElement;
+          resolve(camera);
+        });
+      });
+    }
+
+    // ── 타이틀 씬 초기화 ───────────────────────────────────────
+    (async () => {
+      const statusEl = document.getElementById('loading-status');
+      const btnStart = document.getElementById('btn-start');
+      const initVideo = document.getElementById('webcam-video-init');
+      try {
+        statusEl.textContent = 'AI 모델 로딩 중...';
+        await initFaceMesh(initVideo);
+        statusEl.textContent = '웹캠 연결 중...';
+        await startCamera(initVideo, state.faceMesh);
+        statusEl.textContent = '준비 완료!';
+        statusEl.classList.remove('pulsing');
+        btnStart.disabled = false;
+      } catch (e) {
+        statusEl.textContent = '오류: ' + e.message;
+      }
+      btnStart.addEventListener('click', () => {
+        showScene('scene-rps');
+        initRpsScene();
+      });
+    })();
   </script>
 </body>
 </html>
