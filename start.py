@@ -4,7 +4,7 @@
 - assets/ 이미지가 없으면 컬러 플레이스홀더를 자동 생성합니다
 - http://localhost:8080 에서 게임을 실행합니다
 """
-import os, http.server, socketserver, webbrowser, threading, time
+import os, http.server, socketserver, threading, time
 
 ASSETS = {
     "neutral.jpg":    ((180, 140, 120), "NEUTRAL"),
@@ -62,12 +62,6 @@ PORT = find_free_port(PORT)
 print(f"[2/2] 서버 시작: http://localhost:{PORT}")
 print("      브라우저가 자동으로 열립니다.")
 print("      종료: Ctrl+C\n")
-
-def open_browser():
-    time.sleep(0.8)
-    webbrowser.open(f"http://localhost:{PORT}")
-
-threading.Thread(target=open_browser, daemon=True).start()
 
 with socketserver.TCPServer(("", PORT), Handler) as httpd:
     try:
