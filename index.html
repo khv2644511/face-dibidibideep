@@ -307,9 +307,12 @@
     const EAR_OPEN_THRESHOLD = 0.25;
     const LEFT_EYE = [33, 160, 158, 133, 153, 144];
     const RIGHT_EYE = [362, 385, 387, 263, 373, 380];
-    const TONGUE_TIP = 13;
-    const LOWER_LIP_OUTER = 17;
-    const UPPER_LIP_OUTER = 0;
+    // 입 개방 비율(MAR) 기반 메롱 감지
+    const MOUTH_TOP = 13;    // 윗입술 안쪽 중앙
+    const MOUTH_BOTTOM = 14; // 아랫입술 안쪽 중앙
+    const MOUTH_LEFT = 78;   // 입 왼쪽 끝
+    const MOUTH_RIGHT = 308; // 입 오른쪽 끝
+    const MAR_THRESHOLD = 0.4;
 
     function calcEAR(landmarks, indices) {
       const p = indices.map(i => landmarks[i]);
@@ -321,18 +324,23 @@
 
     function detectExpression(landmarks) {
       if (!landmarks || landmarks.length === 0) return null;
+
+      // 메롱: 입 개방 비율(MAR) > 임계값
+      const mouthH = Math.hypot(
+        landmarks[MOUTH_TOP].x - landmarks[MOUTH_BOTTOM].x,
+        landmarks[MOUTH_TOP].y - landmarks[MOUTH_BOTTOM].y
+      );
+      const mouthW = Math.hypot(
+        landmarks[MOUTH_LEFT].x - landmarks[MOUTH_RIGHT].x,
+        landmarks[MOUTH_LEFT].y - landmarks[MOUTH_RIGHT].y
+      );
+      if (mouthW > 0 && mouthH / mouthW > MAR_THRESHOLD) return 'tongue';
+
+      // 윙크: 미러 영상 기준으로 좌우 swap (MediaPipe는 원본 프레임 기준)
       const leftEAR = calcEAR(landmarks, LEFT_EYE);
       const rightEAR = calcEAR(landmarks, RIGHT_EYE);
-
-      const tongueY = landmarks[TONGUE_TIP].y;
-      const lowerLipY = landmarks[LOWER_LIP_OUTER].y;
-      const upperLipY = landmarks[UPPER_LIP_OUTER].y;
-      const mouthHeight = lowerLipY - upperLipY;
-      const tonguePoke = tongueY - lowerLipY;
-      if (tonguePoke > mouthHeight * 0.3) return 'tongue';
-
-      if (leftEAR < EAR_THRESHOLD && rightEAR > EAR_OPEN_THRESHOLD) return 'wink_left';
-      if (rightEAR < EAR_THRESHOLD && leftEAR > EAR_OPEN_THRESHOLD) return 'wink_right';
+      if (leftEAR < EAR_THRESHOLD && rightEAR > EAR_OPEN_THRESHOLD) return 'wink_right';
+      if (rightEAR < EAR_THRESHOLD && leftEAR > EAR_OPEN_THRESHOLD) return 'wink_left';
 
       return 'neutral';
     }
@@ -439,12 +447,12 @@
     function renderCounterDots(streak) {
       const container = document.getElementById('counter-dots');
       container.innerHTML = '';
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 3; i++) {
         const dot = document.createElement('div');
         dot.className = 'counter-dot' + (i < streak ? ' filled' : '');
         container.appendChild(dot);
       }
-      document.getElementById('counter-text').textContent = `${streak} / 5`;
+      document.getElementById('counter-text').textContent = `${streak} / 3`;
     }
 
     // ── AI 이미지 / 표정 맵 ────────────────────────────────────
@@ -585,7 +593,7 @@
       setTimeout(() => {
         overlay.classList.add('hidden');
 
-        if (state.defenseStreak >= 5) {
+        if (state.defenseStreak >= 3) {
           showGameOver();
         } else {
           renderCounterDots(state.defenseStreak);
