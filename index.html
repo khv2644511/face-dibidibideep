@@ -15,16 +15,19 @@
       align-items: center;
       justify-content: center;
     }
+
+    /* ── 씬 기본 ── */
     .scene { display: none; width: 100%; max-width: 480px; padding: 20px; }
     .scene.active { display: flex; flex-direction: column; align-items: center; gap: 16px; }
 
-    /* 공통 버튼 */
+    /* 게임 씬만 가로로 넓게 */
+    #scene-game { max-width: 720px; flex-direction: row; align-items: flex-start; gap: 20px; }
+
+    /* ── 공통 버튼 ── */
     .btn {
       padding: 12px 32px;
-      border: none;
-      border-radius: 30px;
-      font-size: 16px;
-      font-weight: bold;
+      border: none; border-radius: 30px;
+      font-size: 16px; font-weight: bold;
       cursor: pointer;
       transition: transform 0.1s, opacity 0.1s;
     }
@@ -32,168 +35,169 @@
     .btn-primary { background: #6c63ff; color: #fff; }
     .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
 
-    /* 타이틀 씬 */
+    /* ── 타이틀 씬 ── */
     #scene-title h1 {
-      font-size: 28px;
-      font-weight: 900;
-      text-align: center;
-      line-height: 1.3;
-      margin-bottom: 8px;
+      font-size: 28px; font-weight: 900;
+      text-align: center; line-height: 1.3; margin-bottom: 8px;
     }
     #scene-title .subtitle { color: #888; font-size: 14px; text-align: center; }
+    .nickname-input {
+      width: 100%; padding: 12px 16px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 12px;
+      color: #fff; font-size: 16px; text-align: center;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .nickname-input:focus { border-color: #6c63ff; }
+    .nickname-input::placeholder { color: #555; }
 
-    /* 가위바위보 씬 */
+    /* ── 가위바위보 씬 ── */
     .rps-buttons { display: flex; gap: 12px; margin-top: 8px; }
     .rps-btn {
-      width: 80px; height: 80px;
-      border-radius: 50%;
+      width: 80px; height: 80px; border-radius: 50%;
       border: 2px solid rgba(255,255,255,0.2);
       background: rgba(255,255,255,0.05);
-      font-size: 36px;
-      cursor: pointer;
+      font-size: 36px; cursor: pointer;
       transition: transform 0.15s, border-color 0.15s;
     }
     .rps-btn:hover { transform: scale(1.1); border-color: #6c63ff; }
     .rps-result { font-size: 18px; font-weight: bold; min-height: 28px; text-align: center; }
 
-    /* 게임 씬 - 상단 카운터 */
+    /* ── 게임 씬 - 메인 영역 ── */
+    .game-main {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; gap: 16px; min-width: 0;
+    }
+
+    /* 수비 카운터 */
     .counter-bar {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      width: 100%; display: flex;
+      justify-content: space-between; align-items: center;
       padding: 8px 12px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 10px;
+      background: rgba(255,255,255,0.05); border-radius: 10px;
     }
     .counter-circles { display: flex; gap: 6px; }
     .counter-dot {
-      width: 24px; height: 24px;
-      border-radius: 50%;
-      border: 2px solid #4ecdc4;
-      transition: background 0.3s;
+      width: 24px; height: 24px; border-radius: 50%;
+      border: 2px solid #4ecdc4; transition: background 0.3s;
     }
     .counter-dot.filled { background: #4ecdc4; }
 
-    /* 게임 씬 - 얼굴 영역 */
+    /* 얼굴 영역 */
     .faces-area {
-      width: 100%;
-      display: flex;
-      gap: 12px;
-      position: relative;
+      width: 100%; display: flex; gap: 12px; position: relative;
     }
     .face-panel {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px;
     }
     .role-label {
-      font-size: 10px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      font-weight: bold;
+      font-size: 10px; letter-spacing: 2px;
+      text-transform: uppercase; font-weight: bold;
     }
     .role-label.attacker { color: #ff6b6b; }
     .role-label.defender { color: #4ecdc4; }
-
     .face-frame {
-      width: 160px; height: 160px;
-      border-radius: 16px;
-      overflow: hidden;
-      position: relative;
+      width: 150px; height: 150px;
+      border-radius: 16px; overflow: hidden; position: relative;
     }
     .face-frame.attacker { border: 2px solid #ff6b6b; box-shadow: 0 0 20px rgba(255,107,107,0.25); }
     .face-frame.defender { border: 2px solid #4ecdc4; box-shadow: 0 0 20px rgba(78,205,196,0.25); }
-
     .face-frame img { width: 100%; height: 100%; object-fit: cover; }
-
     #webcam-video {
-      width: 160px; height: 160px;
-      object-fit: cover;
-      transform: scaleX(-1);
-      border-radius: 14px;
+      width: 150px; height: 150px;
+      object-fit: cover; transform: scaleX(-1); border-radius: 14px;
     }
-
-    .face-label {
-      font-size: 11px;
-      color: #888;
-    }
+    .face-label { font-size: 11px; color: #888; }
     .expression-badge {
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 11px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.15);
-      min-height: 24px;
-      display: flex;
-      align-items: center;
+      padding: 3px 10px; border-radius: 20px; font-size: 11px;
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+      min-height: 24px; display: flex; align-items: center;
     }
-
     .vs-divider {
-      position: absolute;
-      top: 50%; left: 50%;
+      position: absolute; top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      background: #0a0a0f;
-      padding: 4px 8px;
-      border-radius: 50%;
-      font-size: 12px;
-      color: #555;
-      border: 1px solid #333;
-      z-index: 10;
+      background: #0a0a0f; padding: 4px 8px;
+      border-radius: 50%; font-size: 12px; color: #555;
+      border: 1px solid #333; z-index: 10;
     }
 
-    /* 게임 씬 - 하단 액션 */
+    /* 액션 영역 */
     .action-area {
-      width: 100%;
-      padding: 16px;
+      width: 100%; padding: 14px 16px;
       background: rgba(255,255,255,0.03);
       border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 12px;
-      text-align: center;
+      border-radius: 12px; text-align: center;
+      min-height: 130px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 6px;
     }
     .dibidibideep-text {
-      font-size: 24px;
-      font-weight: 900;
-      letter-spacing: 2px;
-      color: #fff;
-      min-height: 36px;
+      font-size: 22px; font-weight: 900;
+      letter-spacing: 2px; color: #fff; min-height: 32px;
     }
-    .action-hint { font-size: 12px; color: #888; margin-top: 4px; }
+    .action-hint { font-size: 12px; color: #888; }
     .countdown-display {
-      font-size: 48px;
-      font-weight: 900;
-      color: #6c63ff;
-      min-height: 64px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      font-size: 44px; font-weight: 900; color: #6c63ff;
+      min-height: 56px; display: flex; align-items: center; justify-content: center;
+    }
+    /* action-area 안 결과 표시 */
+    .round-result {
+      font-size: 20px; font-weight: 900;
+      min-height: 28px; letter-spacing: 1px;
     }
 
-    /* 결과 오버레이 */
-    .result-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-      font-size: 48px;
-      font-weight: 900;
+    /* ── 랭킹 사이드바 ── */
+    .ranking-sidebar {
+      width: 200px; flex-shrink: 0;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px; padding: 14px 12px;
+      display: flex; flex-direction: column; gap: 10px;
     }
-    .result-overlay.hidden { display: none; }
+    .ranking-sidebar h3 {
+      font-size: 12px; letter-spacing: 2px;
+      text-transform: uppercase; color: #888;
+      text-align: center;
+    }
+    .ranking-list { display: flex; flex-direction: column; gap: 6px; }
+    .ranking-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 8px; border-radius: 8px;
+      background: rgba(255,255,255,0.04);
+      font-size: 12px;
+    }
+    .ranking-item.me { background: rgba(108,99,255,0.15); border: 1px solid rgba(108,99,255,0.3); }
+    .ranking-rank { width: 18px; text-align: center; font-weight: 900; color: #888; font-size: 11px; }
+    .ranking-rank.gold { color: #ffd700; }
+    .ranking-rank.silver { color: #c0c0c0; }
+    .ranking-rank.bronze { color: #cd7f32; }
+    .ranking-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ranking-score { font-weight: 900; color: #6c63ff; font-size: 13px; }
+    .ranking-empty { color: #555; font-size: 12px; text-align: center; padding: 8px 0; }
 
-    /* 게임오버 씬 */
-    #scene-gameover .winner-text { font-size: 32px; font-weight: 900; }
+    /* ── 게임오버 씬 ── */
+    #scene-gameover .winner-text { font-size: 28px; font-weight: 900; }
     #scene-gameover .rounds-text { color: #888; font-size: 14px; }
+    #scene-gameover .score-text { font-size: 20px; font-weight: 900; color: #6c63ff; }
+    .gameover-ranking {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px; padding: 14px 16px;
+    }
+    .gameover-ranking h3 {
+      font-size: 12px; letter-spacing: 2px;
+      text-transform: uppercase; color: #888;
+      margin-bottom: 10px; text-align: center;
+    }
 
-    /* 로딩 */
+    /* ── 로딩 ── */
     .loading-text { color: #888; font-size: 13px; text-align: center; }
 
     @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
+      0%, 100% { opacity: 1; } 50% { opacity: 0.5; }
     }
     .pulsing { animation: pulse 1s ease-in-out infinite; }
 
@@ -203,6 +207,13 @@
       100% { transform: scale(1); opacity: 1; }
     }
     .dibidibideep-enter { animation: dibidibideep-anim 0.4s ease-out forwards; }
+
+    @keyframes result-pop {
+      0% { transform: scale(0.7); opacity: 0; }
+      60% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .result-pop { animation: result-pop 0.35s ease-out forwards; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
@@ -212,6 +223,8 @@
   <div id="scene-title" class="scene active">
     <h1>페이스<br>디비디비딥</h1>
     <p class="subtitle">웹캠으로 표정을 인식하는 얼굴 게임</p>
+    <input id="nickname-input" class="nickname-input" type="text" maxlength="12"
+           placeholder="닉네임을 입력하세요" autocomplete="off">
     <p id="loading-status" class="loading-text pulsing">웹캠 및 AI 모델 로딩 중...</p>
     <button id="btn-start" class="btn btn-primary" disabled>시작하기</button>
     <video id="webcam-video-init" style="display:none" playsinline></video>
@@ -231,56 +244,63 @@
 
   <!-- Scene 3: 게임 라운드 -->
   <div id="scene-game" class="scene">
-    <!-- 수비 연속 카운터 -->
-    <div class="counter-bar">
-      <span style="font-size:12px;color:#aaa;">수비 연속</span>
-      <div class="counter-circles" id="counter-dots"></div>
-      <span id="counter-text" style="font-size:12px;color:#aaa;">0 / 5</span>
-    </div>
-
-    <!-- 얼굴 영역 -->
-    <div class="faces-area">
-      <!-- AI 패널 -->
-      <div class="face-panel">
-        <span id="ai-role-label" class="role-label attacker">공격자</span>
-        <div class="face-frame attacker" id="ai-face-frame">
-          <img id="ai-face-img" src="assets/neutral.jpg" alt="AI">
-        </div>
-        <span class="face-label">AI 상대</span>
-        <span id="ai-expression-badge" class="expression-badge">😐 대기 중</span>
+    <!-- 게임 메인 -->
+    <div class="game-main">
+      <div class="counter-bar">
+        <span style="font-size:12px;color:#aaa;">수비 연속</span>
+        <div class="counter-circles" id="counter-dots"></div>
+        <span id="counter-text" style="font-size:12px;color:#aaa;">0 / 3</span>
       </div>
 
-      <div class="vs-divider">VS</div>
-
-      <!-- 플레이어 패널 -->
-      <div class="face-panel">
-        <span id="player-role-label" class="role-label defender">수비자</span>
-        <div class="face-frame defender">
-          <video id="webcam-video" playsinline autoplay muted></video>
+      <div class="faces-area">
+        <div class="face-panel">
+          <span id="ai-role-label" class="role-label attacker">공격자</span>
+          <div class="face-frame attacker" id="ai-face-frame">
+            <img id="ai-face-img" src="assets/neutral.jpg" alt="AI">
+          </div>
+          <span class="face-label">AI 상대</span>
+          <span id="ai-expression-badge" class="expression-badge">😐 대기 중</span>
         </div>
-        <span class="face-label">나</span>
-        <span id="player-expression-badge" class="expression-badge">😐 대기 중</span>
+
+        <div class="vs-divider">VS</div>
+
+        <div class="face-panel">
+          <span id="player-role-label" class="role-label defender">수비자</span>
+          <div class="face-frame defender">
+            <video id="webcam-video" playsinline autoplay muted></video>
+          </div>
+          <span class="face-label" id="player-name-label">나</span>
+          <span id="player-expression-badge" class="expression-badge">😐 대기 중</span>
+        </div>
+      </div>
+
+      <div class="action-area">
+        <div id="dibidibideep-text" class="dibidibideep-text"></div>
+        <div id="round-result" class="round-result"></div>
+        <div id="action-hint" class="action-hint">준비되면 버튼을 누르세요</div>
+        <div id="countdown-display" class="countdown-display"></div>
+        <button id="btn-ready" class="btn btn-primary">준비!</button>
       </div>
     </div>
 
-    <!-- 액션 영역 -->
-    <div class="action-area">
-      <div id="dibidibideep-text" class="dibidibideep-text"></div>
-      <div id="action-hint" class="action-hint">준비되면 버튼을 누르세요</div>
-      <div id="countdown-display" class="countdown-display"></div>
-      <button id="btn-ready" class="btn btn-primary">준비!</button>
+    <!-- 랭킹 사이드바 -->
+    <div class="ranking-sidebar">
+      <h3>🏆 랭킹</h3>
+      <div id="game-ranking-list" class="ranking-list"></div>
     </div>
   </div>
 
-  <!-- 결과 오버레이 -->
-  <div id="result-overlay" class="result-overlay hidden"></div>
-
   <!-- Scene 4: 게임 오버 -->
   <div id="scene-gameover" class="scene">
-    <div style="font-size:64px;">🏆</div>
+    <div style="font-size:56px;" id="gameover-emoji">🏆</div>
     <div id="winner-text" class="winner-text"></div>
+    <div id="score-text" class="score-text"></div>
     <div id="rounds-text" class="rounds-text"></div>
-    <button id="btn-replay" class="btn btn-primary" style="margin-top:16px;">다시하기</button>
+    <div class="gameover-ranking">
+      <h3>🏆 랭킹</h3>
+      <div id="gameover-ranking-list" class="ranking-list"></div>
+    </div>
+    <button id="btn-replay" class="btn btn-primary">다시하기</button>
   </div>
 
   <script>
@@ -294,6 +314,7 @@
       aiRole: null,
       defenseStreak: 0,
       totalRounds: 0,
+      playerName: '플레이어',
     };
 
     // ── 씬 전환 ────────────────────────────────────────────────
@@ -302,30 +323,28 @@
       document.getElementById(id).classList.add('active');
     }
 
-    // ── 표정 감지 상수 ─────────────────────────────────────────
+    // ── 표정 감지 ──────────────────────────────────────────────
     const EAR_THRESHOLD = 0.2;
     const EAR_OPEN_THRESHOLD = 0.25;
     const LEFT_EYE = [33, 160, 158, 133, 153, 144];
     const RIGHT_EYE = [362, 385, 387, 263, 373, 380];
-    // 입 개방 비율(MAR) 기반 메롱 감지
-    const MOUTH_TOP = 13;    // 윗입술 안쪽 중앙
-    const MOUTH_BOTTOM = 14; // 아랫입술 안쪽 중앙
-    const MOUTH_LEFT = 78;   // 입 왼쪽 끝
-    const MOUTH_RIGHT = 308; // 입 오른쪽 끝
+    const MOUTH_TOP = 13;
+    const MOUTH_BOTTOM = 14;
+    const MOUTH_LEFT = 78;
+    const MOUTH_RIGHT = 308;
     const MAR_THRESHOLD = 0.4;
 
     function calcEAR(landmarks, indices) {
       const p = indices.map(i => landmarks[i]);
-      const vertical1 = Math.hypot(p[1].x - p[5].x, p[1].y - p[5].y);
-      const vertical2 = Math.hypot(p[2].x - p[4].x, p[2].y - p[4].y);
-      const horizontal = Math.hypot(p[0].x - p[3].x, p[0].y - p[3].y);
-      return (vertical1 + vertical2) / (2 * horizontal);
+      const v1 = Math.hypot(p[1].x - p[5].x, p[1].y - p[5].y);
+      const v2 = Math.hypot(p[2].x - p[4].x, p[2].y - p[4].y);
+      const h  = Math.hypot(p[0].x - p[3].x, p[0].y - p[3].y);
+      return (v1 + v2) / (2 * h);
     }
 
     function detectExpression(landmarks) {
       if (!landmarks || landmarks.length === 0) return null;
 
-      // 메롱: 입 개방 비율(MAR) > 임계값
       const mouthH = Math.hypot(
         landmarks[MOUTH_TOP].x - landmarks[MOUTH_BOTTOM].x,
         landmarks[MOUTH_TOP].y - landmarks[MOUTH_BOTTOM].y
@@ -336,11 +355,10 @@
       );
       if (mouthW > 0 && mouthH / mouthW > MAR_THRESHOLD) return 'tongue';
 
-      // 윙크: 미러 영상 기준으로 좌우 swap (MediaPipe는 원본 프레임 기준)
-      const leftEAR = calcEAR(landmarks, LEFT_EYE);
+      const leftEAR  = calcEAR(landmarks, LEFT_EYE);
       const rightEAR = calcEAR(landmarks, RIGHT_EYE);
-      if (leftEAR < EAR_THRESHOLD && rightEAR > EAR_OPEN_THRESHOLD) return 'wink_right';
-      if (rightEAR < EAR_THRESHOLD && leftEAR > EAR_OPEN_THRESHOLD) return 'wink_left';
+      if (leftEAR  < EAR_THRESHOLD && rightEAR > EAR_OPEN_THRESHOLD) return 'wink_right';
+      if (rightEAR < EAR_THRESHOLD && leftEAR  > EAR_OPEN_THRESHOLD) return 'wink_left';
 
       return 'neutral';
     }
@@ -351,10 +369,8 @@
         locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
       });
       faceMesh.setOptions({
-        maxNumFaces: 1,
-        refineLandmarks: true,
-        minDetectionConfidence: 0.5,
-        minTrackingConfidence: 0.5,
+        maxNumFaces: 1, refineLandmarks: true,
+        minDetectionConfidence: 0.5, minTrackingConfidence: 0.5,
       });
       faceMesh.onResults(results => {
         state.lastLandmarks = results.multiFaceLandmarks?.[0] || null;
@@ -367,11 +383,8 @@
     async function startCamera(videoElement, faceMesh) {
       return new Promise((resolve, reject) => {
         const camera = new Camera(videoElement, {
-          onFrame: async () => {
-            await faceMesh.send({ image: videoElement });
-          },
-          width: 320,
-          height: 240,
+          onFrame: async () => { await faceMesh.send({ image: videoElement }); },
+          width: 320, height: 240,
         });
         camera.start().then(() => {
           state.camera = camera;
@@ -381,10 +394,49 @@
       });
     }
 
+    // ── 랭킹 (localStorage) ────────────────────────────────────
+    const RANKING_KEY = 'dibidibideep_ranking';
+
+    function loadRanking() {
+      try { return JSON.parse(localStorage.getItem(RANKING_KEY)) || []; }
+      catch { return []; }
+    }
+
+    function saveRanking(entry) {
+      const list = loadRanking();
+      list.push(entry);
+      list.sort((a, b) => b.score - a.score);
+      localStorage.setItem(RANKING_KEY, JSON.stringify(list.slice(0, 20)));
+    }
+
+    function calcScore(rounds) {
+      return 100 + Math.max(0, (10 - rounds) * 10);
+    }
+
+    function renderRanking(containerId, highlightName) {
+      const list = loadRanking();
+      const el = document.getElementById(containerId);
+      if (!el) return;
+      if (list.length === 0) {
+        el.innerHTML = '<div class="ranking-empty">아직 기록이 없어요</div>';
+        return;
+      }
+      const rankSymbols = ['gold', 'silver', 'bronze'];
+      el.innerHTML = list.slice(0, 10).map((item, i) => {
+        const rankClass = rankSymbols[i] || '';
+        const isMe = highlightName && item.name === highlightName && item._latest;
+        return `<div class="ranking-item${isMe ? ' me' : ''}">
+          <span class="ranking-rank ${rankClass}">${i + 1}</span>
+          <span class="ranking-name">${item.name}</span>
+          <span class="ranking-score">${item.score}</span>
+        </div>`;
+      }).join('');
+    }
+
     // ── 타이틀 씬 초기화 ───────────────────────────────────────
     (async () => {
-      const statusEl = document.getElementById('loading-status');
-      const btnStart = document.getElementById('btn-start');
+      const statusEl  = document.getElementById('loading-status');
+      const btnStart  = document.getElementById('btn-start');
       const initVideo = document.getElementById('webcam-video-init');
       try {
         statusEl.textContent = 'AI 모델 로딩 중...';
@@ -397,7 +449,10 @@
       } catch (e) {
         statusEl.textContent = '오류: ' + e.message;
       }
+
       btnStart.addEventListener('click', () => {
+        const raw = document.getElementById('nickname-input').value.trim();
+        state.playerName = raw || '플레이어';
         showScene('scene-rps');
         initRpsScene();
       });
@@ -405,19 +460,19 @@
 
     // ── 가위바위보 씬 ──────────────────────────────────────────
     const RPS_CHOICES = ['scissors', 'rock', 'paper'];
-    const RPS_EMOJI = { scissors: '✌️', rock: '✊', paper: '🖐️' };
-    const RPS_WIN = { scissors: 'paper', rock: 'scissors', paper: 'rock' };
+    const RPS_EMOJI   = { scissors: '✌️', rock: '✊', paper: '🖐️' };
+    const RPS_WIN     = { scissors: 'paper', rock: 'scissors', paper: 'rock' };
 
     function initRpsScene() {
-      const resultEl = document.getElementById('rps-result');
-      const roleEl = document.getElementById('rps-role-display');
-      resultEl.textContent = '';
-      roleEl.textContent = '';
+      document.getElementById('rps-result').textContent = '';
+      document.getElementById('rps-role-display').textContent = '';
 
       document.querySelectorAll('.rps-btn').forEach(btn => {
         btn.onclick = () => {
           const playerChoice = btn.dataset.choice;
           const aiChoice = RPS_CHOICES[Math.floor(Math.random() * 3)];
+          const resultEl = document.getElementById('rps-result');
+          const roleEl   = document.getElementById('rps-role-display');
 
           resultEl.textContent = `나: ${RPS_EMOJI[playerChoice]}  vs  AI: ${RPS_EMOJI[aiChoice]}`;
 
@@ -427,23 +482,21 @@
           }
 
           if (RPS_WIN[playerChoice] === aiChoice) {
-            state.playerRole = 'attacker';
-            state.aiRole = 'defender';
+            state.playerRole = 'attacker'; state.aiRole = 'defender';
             roleEl.textContent = '🎉 이겼습니다! 공격자가 됩니다.';
           } else {
-            state.playerRole = 'defender';
-            state.aiRole = 'attacker';
+            state.playerRole = 'defender'; state.aiRole = 'attacker';
             roleEl.textContent = '😅 졌습니다! 수비자가 됩니다.';
           }
 
           state.defenseStreak = 0;
-          state.totalRounds = 0;
-
+          state.totalRounds   = 0;
           setTimeout(() => startGameScene(), 1500);
         };
       });
     }
-    // ── 카운터 도트 렌더링 ─────────────────────────────────────
+
+    // ── 카운터 도트 ────────────────────────────────────────────
     function renderCounterDots(streak) {
       const container = document.getElementById('counter-dots');
       container.innerHTML = '';
@@ -462,29 +515,27 @@
       wink_right: 'assets/wink_right.jpg',
       tongue:     'assets/tongue.jpg',
     };
-
     const EXPRESSION_LABEL = {
       neutral:    '😐 대기 중',
       wink_left:  '😉 왼쪽 윙크',
       wink_right: '😉 오른쪽 윙크',
       tongue:     '😛 메롱',
     };
-
     const EXPRESSIONS = ['wink_left', 'wink_right', 'tongue'];
 
     function updateRoleUI() {
-      const aiRoleEl = document.getElementById('ai-role-label');
+      const aiRoleEl     = document.getElementById('ai-role-label');
       const playerRoleEl = document.getElementById('player-role-label');
-      const aiFrame = document.getElementById('ai-face-frame');
-      const playerFrame = document.querySelector('#scene-game .face-panel:last-child .face-frame');
+      const aiFrame      = document.getElementById('ai-face-frame');
+      const playerFrame  = document.querySelector('#scene-game .face-panel:last-child .face-frame');
 
-      aiRoleEl.textContent = state.aiRole === 'attacker' ? '공격자' : '수비자';
-      aiRoleEl.className = 'role-label ' + state.aiRole;
+      aiRoleEl.textContent     = state.aiRole     === 'attacker' ? '공격자' : '수비자';
+      aiRoleEl.className       = 'role-label ' + state.aiRole;
       playerRoleEl.textContent = state.playerRole === 'attacker' ? '공격자' : '수비자';
-      playerRoleEl.className = 'role-label ' + state.playerRole;
+      playerRoleEl.className   = 'role-label ' + state.playerRole;
 
-      aiFrame.className = 'face-frame ' + state.aiRole;
-      playerFrame.className = 'face-frame ' + state.playerRole;
+      aiFrame.className    = 'face-frame ' + state.aiRole;
+      if (playerFrame) playerFrame.className = 'face-frame ' + state.playerRole;
     }
 
     // ── 게임 씬 진입 ───────────────────────────────────────────
@@ -495,14 +546,18 @@
         await startCamera(gameVideo, state.faceMesh);
       }
 
+      document.getElementById('player-name-label').textContent = state.playerName;
       showScene('scene-game');
       renderCounterDots(state.defenseStreak);
+      renderRanking('game-ranking-list', null);
       updateRoleUI();
       document.getElementById('ai-face-img').src = AI_IMAGES.neutral;
-      document.getElementById('ai-expression-badge').textContent = EXPRESSION_LABEL.neutral;
+      document.getElementById('ai-expression-badge').textContent  = EXPRESSION_LABEL.neutral;
       document.getElementById('player-expression-badge').textContent = EXPRESSION_LABEL.neutral;
       document.getElementById('dibidibideep-text').textContent = '';
-      document.getElementById('action-hint').textContent = '준비되면 버튼을 누르세요';
+      document.getElementById('round-result').textContent     = '';
+      document.getElementById('round-result').style.color     = '';
+      document.getElementById('action-hint').textContent      = '준비되면 버튼을 누르세요';
       document.getElementById('countdown-display').textContent = '';
 
       const btnReady = document.getElementById('btn-ready');
@@ -513,18 +568,19 @@
     // ── 라운드 시작 ────────────────────────────────────────────
     function startRound() {
       state.totalRounds++;
-      const btnReady = document.getElementById('btn-ready');
-      btnReady.style.display = 'none';
+      document.getElementById('btn-ready').style.display = 'none';
+      document.getElementById('round-result').textContent = '';
 
       const expressionInterval = setInterval(() => {
         const expr = detectExpression(state.lastLandmarks);
         if (expr) {
-          document.getElementById('player-expression-badge').textContent = EXPRESSION_LABEL[expr] || EXPRESSION_LABEL.neutral;
+          document.getElementById('player-expression-badge').textContent =
+            EXPRESSION_LABEL[expr] || EXPRESSION_LABEL.neutral;
         }
       }, 200);
 
-      const dibEl = document.getElementById('dibidibideep-text');
-      const hintEl = document.getElementById('action-hint');
+      const dibEl   = document.getElementById('dibidibideep-text');
+      const hintEl  = document.getElementById('action-hint');
       const countEl = document.getElementById('countdown-display');
 
       dibEl.textContent = '디비디비딥!';
@@ -553,7 +609,6 @@
 
       if (!playerExpr || playerExpr === 'neutral') {
         document.getElementById('action-hint').textContent = '표정을 인식하지 못했어요! 다시 시도하세요.';
-        document.getElementById('countdown-display').textContent = '';
         document.getElementById('dibidibideep-text').textContent = '';
         document.getElementById('dibidibideep-text').classList.remove('dibidibideep-enter');
         document.getElementById('btn-ready').style.display = 'inline-block';
@@ -562,61 +617,87 @@
 
       const aiExpr = EXPRESSIONS[Math.floor(Math.random() * EXPRESSIONS.length)];
 
+      // AI 표정 이미지 전환 (3초 유지)
       document.getElementById('ai-face-img').src = AI_IMAGES[aiExpr];
-      document.getElementById('ai-expression-badge').textContent = EXPRESSION_LABEL[aiExpr];
+      document.getElementById('ai-expression-badge').textContent  = EXPRESSION_LABEL[aiExpr];
       document.getElementById('player-expression-badge').textContent = EXPRESSION_LABEL[playerExpr];
       document.getElementById('dibidibideep-text').classList.remove('dibidibideep-enter');
 
-      const isSame = playerExpr === aiExpr;
-      showRoundResult(isSame);
+      showRoundResult(playerExpr === aiExpr);
     }
 
-    // ── 라운드 결과 표시 ───────────────────────────────────────
+    // ── 라운드 결과 표시 (action-area 내부) ───────────────────
     function showRoundResult(attackerWinsRound) {
-      const overlay = document.getElementById('result-overlay');
+      const resultEl = document.getElementById('round-result');
+      const hintEl   = document.getElementById('action-hint');
 
       if (attackerWinsRound) {
-        overlay.textContent = state.playerRole === 'attacker' ? '😈 공격 성공!' : '😱 잡혔다!';
-        overlay.style.color = '#ff6b6b';
-        state.defenseStreak = 0;
+        const msg = state.playerRole === 'attacker' ? '😈 공격 성공!' : '😱 잡혔다!';
+        resultEl.textContent  = msg;
+        resultEl.style.color  = '#ff6b6b';
+        state.defenseStreak   = 0;
         [state.playerRole, state.aiRole] = [state.aiRole, state.playerRole];
       } else {
         state.defenseStreak++;
-        overlay.textContent = state.playerRole === 'defender'
-          ? `🛡️ 방어 성공! (${state.defenseStreak}/5)`
-          : `🛡️ AI 방어! (${state.defenseStreak}/5)`;
-        overlay.style.color = '#4ecdc4';
+        const msg = state.playerRole === 'defender'
+          ? `🛡️ 방어 성공! (${state.defenseStreak}/3)`
+          : `🛡️ AI 방어! (${state.defenseStreak}/3)`;
+        resultEl.textContent = msg;
+        resultEl.style.color = '#4ecdc4';
       }
 
-      overlay.classList.remove('hidden');
+      resultEl.classList.remove('result-pop');
+      void resultEl.offsetWidth; // reflow for re-trigger
+      resultEl.classList.add('result-pop');
 
+      document.getElementById('dibidibideep-text').textContent = '';
+      hintEl.textContent = '';
+
+      // 3초 후 다음 라운드 or 게임 오버
       setTimeout(() => {
-        overlay.classList.add('hidden');
+        resultEl.textContent = '';
+        resultEl.classList.remove('result-pop');
+
+        // AI 표정 중립으로 복귀
+        document.getElementById('ai-face-img').src = AI_IMAGES.neutral;
 
         if (state.defenseStreak >= 3) {
           showGameOver();
         } else {
           renderCounterDots(state.defenseStreak);
           updateRoleUI();
-          document.getElementById('ai-face-img').src = AI_IMAGES.neutral;
-          document.getElementById('dibidibideep-text').textContent = '';
+          document.getElementById('ai-expression-badge').textContent  = EXPRESSION_LABEL.neutral;
           document.getElementById('action-hint').textContent = '준비되면 버튼을 누르세요';
           document.getElementById('btn-ready').style.display = 'inline-block';
         }
-      }, 1200);
+      }, 3000);
     }
 
     // ── 게임 오버 ──────────────────────────────────────────────
     function showGameOver() {
-      const winnerEl = document.getElementById('winner-text');
-      const roundsEl = document.getElementById('rounds-text');
-
       const defenderIsPlayer = state.playerRole === 'defender';
-      winnerEl.textContent = defenderIsPlayer ? '🎉 수비자(나) 승리!' : '🤖 AI 수비자 승리!';
-      winnerEl.style.color = defenderIsPlayer ? '#4ecdc4' : '#ff6b6b';
-      roundsEl.textContent = `총 ${state.totalRounds}라운드`;
+
+      document.getElementById('gameover-emoji').textContent = defenderIsPlayer ? '🎉' : '🤖';
+      document.getElementById('winner-text').textContent =
+        defenderIsPlayer ? `${state.playerName} 승리!` : 'AI 수비자 승리!';
+      document.getElementById('winner-text').style.color =
+        defenderIsPlayer ? '#4ecdc4' : '#ff6b6b';
+      document.getElementById('rounds-text').textContent = `총 ${state.totalRounds}라운드`;
+
+      if (defenderIsPlayer) {
+        const score = calcScore(state.totalRounds);
+        document.getElementById('score-text').textContent = `점수: ${score}점`;
+
+        // 랭킹 저장 (최신 항목 표시용 플래그)
+        const list = loadRanking();
+        list.forEach(e => delete e._latest);
+        saveRanking({ name: state.playerName, score, rounds: state.totalRounds, _latest: true });
+      } else {
+        document.getElementById('score-text').textContent = '';
+      }
 
       showScene('scene-gameover');
+      renderRanking('gameover-ranking-list', defenderIsPlayer ? state.playerName : null);
 
       document.getElementById('btn-replay').onclick = () => {
         showScene('scene-rps');
