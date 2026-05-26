@@ -19,7 +19,8 @@
       --accent: #FF4D2E;
       --accent-soft: #FFE9E3;
       --paper: #FFFBF2;
-      --call-dibi: #2E5BFF;  /* "디비" 색상 */
+      --call-dibi-1: #FF9E00; /* 첫 번째 "디비" — 주황 */
+      --call-dibi:   #2E5BFF; /* 두 번째 "디비" — 파랑 */
     }
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
     body {
@@ -137,8 +138,9 @@
     .s3-meta { font-family: "JetBrains Mono", monospace; font-size: 10px; color: var(--ink-mute); letter-spacing: 0.2em; font-weight: 700; }
     .s3-call { font-size: 28px; font-weight: 900; letter-spacing: -0.03em; min-height: 36px; margin-top: 2px; }
     /* 디비디비딥 call 색상 */
-    .call-dibi { color: var(--call-dibi); }
-    .call-dip  { color: var(--accent); }
+    .call-dibi-1 { color: var(--call-dibi-1); } /* 주황 */
+    .call-dibi   { color: var(--call-dibi);   } /* 파랑 */
+    .call-dip    { color: var(--accent);       } /* 레드 */
     .role-badge {
       padding: 6px 14px; border: 1.5px solid var(--ink); border-radius: 999px;
       font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
@@ -211,22 +213,50 @@
     .mini-slot.flash { animation: flash 320ms ease; }
     .mini-slot img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-    /* Action area */
-    .action-area { border: 1.5px solid var(--ink); border-radius: 12px; background: var(--paper); overflow: hidden; }
+    /* Action area — mobile D-pad style */
+    .action-area { display: flex; flex-direction: column; gap: 10px; }
     .action-prompt {
-      padding: 10px 16px; text-align: center;
+      padding: 12px 14px;
+      border: 1.5px solid var(--ink); border-radius: 12px;
+      background: var(--paper);
       font-size: 13px; color: var(--ink-soft);
-      border-bottom: 1px solid var(--line);
-      min-height: 42px; display: flex; align-items: center; justify-content: center;
+      text-align: center;
+      min-height: 44px; display: flex; align-items: center; justify-content: center;
+      transition: color 200ms ease;
     }
     .action-prompt strong { color: var(--ink); font-weight: 800; }
-    .action-body { padding: 12px 16px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-    .countdown-big { font-family: "JetBrains Mono", monospace; font-size: 40px; font-weight: 900; color: var(--accent); min-height: 52px; display: flex; align-items: center; justify-content: center; }
-    .round-result { font-size: 18px; font-weight: 900; letter-spacing: -0.01em; min-height: 24px; text-align: center; }
-    @keyframes result-pop { 0%{transform:scale(0.7);opacity:0} 60%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
-    .result-pop { animation: result-pop 0.3s ease-out forwards; }
-    .player-expr-row { display: flex; align-items: center; gap: 8px; justify-content: center; }
-    .player-expr-row .label { font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: 0.15em; color: var(--ink-mute); font-weight: 700; }
+    .action-prompt.success { color: #2EA66F; }
+    .action-prompt.fail    { color: var(--accent); }
+
+    /* Expression pad (D-pad 스타일) */
+    .expr-pad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 48px);
+      gap: 6px;
+    }
+    .expr-pad-cell { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .expr-pad-cell.spacer { visibility: hidden; }
+    .expr-pad-cell.center {
+      background: var(--ink); color: var(--paper);
+      border-radius: 14px;
+      font-size: 11px; font-weight: 800; letter-spacing: 0.08em;
+      transition: font-size 100ms ease;
+    }
+    .expr-pad-cell.center.counting { font-size: 28px; font-family: "JetBrains Mono", monospace; color: var(--accent); background: var(--paper); border: 1.5px solid var(--ink); }
+    .expr-btn {
+      background: var(--paper);
+      border: 1.5px solid var(--ink); border-radius: 14px;
+      box-shadow: 3px 3px 0 var(--ink);
+      gap: 2px; transition: all 100ms ease; cursor: default;
+    }
+    .expr-glyph { font-size: 20px; line-height: 1; }
+    .expr-pad-label { font-size: 8px; font-weight: 700; color: var(--ink-mute); letter-spacing: 0.04em; }
+    .expr-btn.active {
+      background: var(--accent); color: #FFF;
+      transform: translate(2px, 2px); box-shadow: 0 0 0 var(--ink);
+    }
+    .expr-btn.active .expr-pad-label { color: rgba(255,255,255,0.8); }
 
     /* ════════════════════════════════
        RANKING SIDEBAR
@@ -251,9 +281,14 @@
     .s4-score { font-family: "JetBrains Mono", monospace; font-size: 17px; font-weight: 700; color: var(--accent); padding: 8px 22px; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--accent-soft); box-shadow: 2px 2px 0 var(--ink); }
     .s4-sub { font-size: 13px; color: var(--ink-soft); }
     /* 인생네컷 strip */
-    .photo-strip { display: flex; gap: 8px; background: var(--ink); border-radius: 8px; padding: 14px 14px 44px; box-shadow: 5px 7px 0 var(--accent), 5px 7px 0 1.5px var(--ink); position: relative; transform: rotate(-1.5deg); margin: 4px auto; }
+    .photo-strip { display: flex; gap: 8px; background: var(--ink); border-radius: 8px; padding: 14px 14px 44px; box-shadow: 5px 7px 0 var(--accent), 5px 7px 0 1.5px var(--ink); position: relative; transform: rotate(-1.5deg); margin: 4px auto; justify-content: center; }
     .photo-strip::after { content: '페이스 디비디비딥 · 2026'; position: absolute; bottom: 14px; left: 0; right: 0; text-align: center; color: var(--paper); font-family: "Gaegu", cursive; font-size: 12px; }
-    .strip-photo { width: 76px; aspect-ratio: 3/4; background: var(--bg-2); border-radius: 4px; overflow: hidden; position: relative; }
+    /* 사진 수에 따라 너비 자동 조정 */
+    .photo-strip:has(.strip-photo:nth-child(1):last-child) { width: 120px; }
+    .photo-strip:has(.strip-photo:nth-child(2):last-child) { width: 204px; }
+    .photo-strip:has(.strip-photo:nth-child(3):last-child) { width: 288px; }
+    .photo-strip:has(.strip-photo:nth-child(4):last-child) { width: 372px; }
+    .strip-photo { width: 76px; aspect-ratio: 3/4; background: var(--bg-2); border-radius: 4px; overflow: hidden; position: relative; flex-shrink: 0; }
     .strip-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .strip-stamp { position: absolute; top: 4px; left: 4px; font-family: "JetBrains Mono", monospace; font-size: 6px; color: rgba(255,255,255,0.6); z-index: 2; }
     .gameover-ranking { width: 100%; max-width: 400px; border: 1.5px solid var(--ink); border-radius: 14px; padding: 16px; background: var(--paper); box-shadow: 3px 3px 0 var(--ink); }
@@ -288,8 +323,9 @@
       .face-frame { width: 160px; height: 160px; }
 
       /* Action area */
-      .action-body { padding: 10px 14px; gap: 6px; }
-      .countdown-big { font-size: 32px; min-height: 44px; }
+      .expr-pad { grid-template-rows: repeat(3, 54px); }
+      .expr-glyph { font-size: 22px; }
+      .expr-pad-label { font-size: 9px; }
       .btn-primary, .btn-ghost { padding: 14px 20px; font-size: 15px; }
 
       /* Game over */
@@ -411,18 +447,33 @@
         </div>
       </div>
 
-      <!-- 액션 영역 -->
+      <!-- 액션 영역 (표정 패드 D-pad 스타일) -->
       <div class="action-area">
         <div id="action-prompt" class="action-prompt">준비되면 버튼을 누르세요</div>
-        <div class="action-body">
-          <div id="countdown-display" class="countdown-big"></div>
-          <div id="round-result" class="round-result"></div>
-          <div class="player-expr-row">
-            <span class="label">MY EXPRESSION</span>
-            <span id="player-expr-badge" class="expr-badge">😐 대기 중</span>
+        <!-- 표정 패드: 위=메롱 / 좌=윙크왼쪽 / 중앙=닉네임·카운트다운 / 우=윙크오른쪽 -->
+        <div class="expr-pad">
+          <div class="expr-pad-cell spacer"></div>
+          <div class="expr-pad-cell expr-btn" id="expad-tongue">
+            <span class="expr-glyph">😛</span>
+            <span class="expr-pad-label">메롱</span>
           </div>
-          <button id="btn-ready" class="btn-primary">준비!</button>
+          <div class="expr-pad-cell spacer"></div>
+          <div class="expr-pad-cell expr-btn" id="expad-wink_left">
+            <span class="expr-glyph">😉</span>
+            <span class="expr-pad-label">왼쪽윙크</span>
+          </div>
+          <div class="expr-pad-cell center" id="expr-pad-center">YOU</div>
+          <div class="expr-pad-cell expr-btn" id="expad-wink_right">
+            <span class="expr-glyph">😉</span>
+            <span class="expr-pad-label">오른쪽윙크</span>
+          </div>
+          <div class="expr-pad-cell spacer"></div>
+          <div class="expr-pad-cell spacer"></div>
+          <div class="expr-pad-cell spacer"></div>
         </div>
+        <!-- 호환성용 숨김 요소 -->
+        <span id="player-expr-badge" style="display:none"></span>
+        <button id="btn-ready" class="btn-primary">준비!</button>
       </div>
     </div>
 
@@ -580,6 +631,21 @@
   const EXPRESSION_LABEL = { neutral:'😐 대기 중', wink_left:'😉 왼쪽 윙크', wink_right:'😉 오른쪽 윙크', tongue:'😛 메롱' };
   const EXPRESSIONS = ['wink_left','wink_right','tongue'];
 
+  // ── 유저 표정 사진 캡처 ────────────────────────────────────
+  function capturePlayerPhoto() {
+    const video = document.getElementById('webcam-video');
+    if (!video || video.readyState < 2) return null;
+    const size = 160;
+    const canvas = document.createElement('canvas');
+    canvas.width = size; canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    // 셀카 미러 효과
+    ctx.translate(size, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, 0, 0, size, size);
+    return canvas.toDataURL('image/jpeg', 0.82);
+  }
+
   // ── 스트릭 도트 렌더 ───────────────────────────────────────
   function renderStreakDots(streak) {
     document.getElementById('streak-num').textContent = streak;
@@ -590,13 +656,15 @@
     }
   }
 
-  // ── 미니 포토 스트립 업데이트 ──────────────────────────────
-  function updateMiniStrip(idx, aiExpr, flash) {
+  // ── 미니 포토 스트립 업데이트 (유저 사진) ─────────────────
+  function updateMiniStrip(idx, photoDataUrl, flash) {
     document.getElementById('mini-count').textContent = state.photoCount + '/4';
     const slot = document.getElementById('mini-' + idx);
     if (!slot) return;
     slot.className = 'mini-slot filled' + (flash ? ' flash' : '');
-    slot.innerHTML = `<img src="${AI_IMAGES[aiExpr]}" alt="${aiExpr}">`;
+    if (photoDataUrl) {
+      slot.innerHTML = `<img src="${photoDataUrl}" alt="photo">`;
+    }
     if (flash) setTimeout(() => { if(slot) slot.classList.remove('flash'); }, 350);
   }
 
@@ -622,11 +690,23 @@
     renderRanking('game-ranking-list', null);
     document.getElementById('ai-face-img').src = AI_IMAGES.neutral;
     document.getElementById('ai-expr-badge').textContent = EXPRESSION_LABEL.neutral;
-    document.getElementById('player-expr-badge').textContent = EXPRESSION_LABEL.neutral;
     document.getElementById('s3-call').textContent = '준비…';
-    document.getElementById('action-prompt').textContent = '준비되면 버튼을 누르세요';
-    document.getElementById('countdown-display').textContent = '';
-    document.getElementById('round-result').textContent = '';
+
+    // 표정 패드 초기화
+    const centerEl = document.getElementById('expr-pad-center');
+    if (centerEl) {
+      centerEl.textContent = state.playerName.slice(0, 4) || 'YOU';
+      centerEl.className = 'expr-pad-cell center';
+    }
+    ['tongue','wink_left','wink_right'].forEach(e => {
+      const el = document.getElementById('expad-' + e);
+      if (el) el.classList.remove('active');
+    });
+
+    const promptEl = document.getElementById('action-prompt');
+    promptEl.innerHTML = '준비되면 버튼을 누르세요';
+    promptEl.className = 'action-prompt';
+
     const btnReady = document.getElementById('btn-ready');
     btnReady.style.display = 'inline-flex';
     btnReady.onclick = startRound;
@@ -636,38 +716,52 @@
   function startRound() {
     state.totalRounds++;
     document.getElementById('btn-ready').style.display = 'none';
-    document.getElementById('round-result').textContent = '';
-    document.getElementById('round-result').classList.remove('result-pop');
 
-    const callEl   = document.getElementById('s3-call');
-    const promptEl = document.getElementById('action-prompt');
-    const countEl  = document.getElementById('countdown-display');
+    const callEl    = document.getElementById('s3-call');
+    const promptEl  = document.getElementById('action-prompt');
+    const centerEl  = document.getElementById('expr-pad-center');
 
-    // 표정 실시간 표시
+    promptEl.innerHTML = '표정을 준비하세요!';
+    promptEl.className = 'action-prompt';
+
+    // 표정 실시간 감지 → 패드 하이라이트
     const exprInterval = setInterval(() => {
       const expr = detectExpression(state.lastLandmarks);
-      if (expr) document.getElementById('player-expr-badge').textContent = EXPRESSION_LABEL[expr] || EXPRESSION_LABEL.neutral;
-    }, 200);
+      ['tongue','wink_left','wink_right'].forEach(e => {
+        const el = document.getElementById('expad-' + e);
+        if (el) el.classList.toggle('active', expr === e);
+      });
+    }, 180);
 
-    // "디비", "디비", "딥!" 시퀀스 애니메이션
-    promptEl.textContent = '표정을 준비하세요!';
-    callEl.innerHTML = '<span class="call-dibi">디비</span>';
+    // 디비(주황) → 디비(파랑) → 딥!(레드) 시퀀스
+    callEl.innerHTML = '<span class="call-dibi-1">디비</span>';
     setTimeout(() => {
       callEl.innerHTML = '<span class="call-dibi">디비</span>';
     }, 450);
     setTimeout(() => {
       callEl.innerHTML = '<span class="call-dip">딥!</span>';
-      // 딥! 이후 카운트다운 시작
+      // 카운트다운 → center cell에 표시
       let count = 3;
-      countEl.textContent = count;
+      if (centerEl) {
+        centerEl.textContent = count;
+        centerEl.className = 'expr-pad-cell center counting';
+      }
       const timer = setInterval(() => {
         count--;
         if (count > 0) {
-          countEl.textContent = count;
+          if (centerEl) centerEl.textContent = count;
         } else {
           clearInterval(timer);
           clearInterval(exprInterval);
-          countEl.textContent = '';
+          // 카운트다운 끝: 패드 초기화
+          if (centerEl) {
+            centerEl.className = 'expr-pad-cell center';
+            centerEl.textContent = state.playerName.slice(0,4) || 'YOU';
+          }
+          ['tongue','wink_left','wink_right'].forEach(e => {
+            const el = document.getElementById('expad-' + e);
+            if (el) el.classList.remove('active');
+          });
           resolveRound();
         }
       }, 1000);
@@ -680,72 +774,73 @@
 
     // 표정 미감지 → 재시도
     if (!playerExpr || playerExpr === 'neutral') {
-      document.getElementById('action-prompt').textContent = '표정을 인식하지 못했어요! 다시 시도하세요.';
+      const promptEl = document.getElementById('action-prompt');
+      promptEl.innerHTML = '표정을 인식하지 못했어요! <strong>다시 시도하세요</strong>';
+      promptEl.className = 'action-prompt';
       document.getElementById('s3-call').textContent = '다시…';
       document.getElementById('btn-ready').style.display = 'inline-flex';
       state.totalRounds = Math.max(0, state.totalRounds - 1);
       return;
     }
 
+    // 유저 표정 사진 캡처
+    const playerPhoto = capturePlayerPhoto();
+
     const aiExpr = EXPRESSIONS[Math.floor(Math.random() * EXPRESSIONS.length)];
 
-    // 미니 스트립 업데이트
+    // 미니 스트립 업데이트 (유저 사진)
     const slotIdx = state.photoCount;
     if (slotIdx < 4) {
-      state.roundPhotos.push(aiExpr);
+      state.roundPhotos.push({ expr: playerExpr, photo: playerPhoto });
       state.photoCount++;
-      updateMiniStrip(slotIdx, aiExpr, true);
+      updateMiniStrip(slotIdx, playerPhoto, true);
     }
 
     document.getElementById('ai-face-img').src = AI_IMAGES[aiExpr];
     document.getElementById('ai-expr-badge').textContent = EXPRESSION_LABEL[aiExpr];
-    document.getElementById('player-expr-badge').textContent = EXPRESSION_LABEL[playerExpr];
 
     const caught = (playerExpr === aiExpr);
-    showRoundResult(!caught); // true = 방어 성공
+    showRoundResult(!caught, aiExpr); // true = 방어 성공
   }
 
   // ── 라운드 결과 ────────────────────────────────────────────
-  function showRoundResult(defenderWon) {
-    const resultEl = document.getElementById('round-result');
-    const promptEl = document.getElementById('action-prompt');
+  function showRoundResult(defenderWon, aiExpr) {
+    const promptEl  = document.getElementById('action-prompt');
+    const centerEl  = document.getElementById('expr-pad-center');
 
     if (defenderWon) {
       state.defenseStreak++;
-      resultEl.textContent = `🛡️ 방어 성공! (${state.defenseStreak}/${MAX_ROUNDS})`;
-      resultEl.style.color = '#2EA66F';
+      promptEl.innerHTML = `🛡️ <strong>방어 성공!</strong> (${state.defenseStreak}/${MAX_ROUNDS})`;
+      promptEl.className = 'action-prompt success';
+      if (centerEl) centerEl.textContent = '🛡️';
     } else {
-      resultEl.textContent = '😱 잡혔다!';
-      resultEl.style.color = 'var(--accent)';
+      promptEl.innerHTML = `😱 <strong>잡혔다!</strong> AI: ${EXPRESSION_LABEL[aiExpr] || ''}`;
+      promptEl.className = 'action-prompt fail';
+      if (centerEl) centerEl.textContent = '😱';
     }
-
-    resultEl.classList.remove('result-pop');
-    void resultEl.offsetWidth;
-    resultEl.classList.add('result-pop');
-    promptEl.textContent = '';
     document.getElementById('s3-call').textContent = '…';
 
+    const delay = defenderWon ? 2200 : 1600; // 실패는 좀 빠르게 결과로
     setTimeout(() => {
-      resultEl.textContent = '';
-      resultEl.classList.remove('result-pop');
       document.getElementById('ai-face-img').src = AI_IMAGES.neutral;
+      if (centerEl) {
+        centerEl.className = 'expr-pad-cell center';
+        centerEl.textContent = state.playerName.slice(0,4) || 'YOU';
+      }
 
       if (!defenderWon) {
-        // 잡혔다 → 즉시 종료 (패배)
         showGameOver(false);
       } else if (state.defenseStreak >= MAX_ROUNDS) {
-        // 4회 방어 성공 → 승리
         showGameOver(true);
       } else {
-        // 다음 라운드
         renderStreakDots(state.defenseStreak);
         document.getElementById('ai-expr-badge').textContent = EXPRESSION_LABEL.neutral;
-        document.getElementById('player-expr-badge').textContent = EXPRESSION_LABEL.neutral;
-        document.getElementById('action-prompt').textContent = '준비되면 버튼을 누르세요';
+        promptEl.innerHTML = '준비되면 버튼을 누르세요';
+        promptEl.className = 'action-prompt';
         document.getElementById('s3-call').textContent = '준비…';
         document.getElementById('btn-ready').style.display = 'inline-flex';
       }
-    }, 3000);
+    }, delay);
   }
 
   // ── 게임 오버 ──────────────────────────────────────────────
@@ -760,15 +855,17 @@
 
     document.getElementById('s4-sub').textContent = `${state.playerName} · ${state.defenseStreak}/${MAX_ROUNDS} 방어`;
 
-    // 인생네컷 포토 스트립
-    const photos = [...state.roundPhotos];
-    while (photos.length < 4) photos.push('neutral');
-    document.getElementById('photo-strip').innerHTML = photos.slice(0,4).map((expr,i) => `
-      <div class="strip-photo">
+    // 인생네컷 포토 스트립 — 실제 촬영된 유저 표정만 사용
+    const photos = state.roundPhotos; // { expr, photo } 배열, 패딩 없음
+    document.getElementById('photo-strip').innerHTML = photos.map((p,i) => {
+      const imgEl = p.photo
+        ? `<img src="${p.photo}" alt="${p.expr}">`
+        : `<img src="assets/${p.expr || 'neutral'}.jpg" alt="${p.expr}">`;
+      return `<div class="strip-photo">
         <span class="strip-stamp">#${String(i+1).padStart(2,'0')}</span>
-        <img src="assets/${expr}.jpg" alt="${expr}">
-      </div>
-    `).join('');
+        ${imgEl}
+      </div>`;
+    }).join('');
 
     // 랭킹 저장 (항상)
     const list = loadRanking();
