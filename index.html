@@ -4,706 +4,1090 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>페이스 디비디비딥</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #F5F1E8;
+      --bg-2: #EBE5D5;
+      --ink: #1A1714;
+      --ink-soft: #4A4239;
+      --ink-mute: #8B7F70;
+      --line: #D9D1BD;
+      --accent: #FF4D2E;
+      --accent-soft: #FFE9E3;
+      --paper: #FFFBF2;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
     body {
-      background: #0a0a0f;
-      color: #fff;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0F0E0C;
+      color: var(--ink);
+      font-family: "Pretendard", -apple-system, BlinkMacSystemFont, sans-serif;
       min-height: 100vh;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
+      padding: 32px 20px;
     }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+    input { font-family: inherit; }
 
-    /* ── 씬 기본 ── */
-    .scene { display: none; width: 100%; max-width: 480px; padding: 20px; }
-    .scene.active { display: flex; flex-direction: column; align-items: center; gap: 16px; }
-
-    /* 게임 씬만 가로로 넓게 */
-    #scene-game { max-width: 720px; flex-direction: row; align-items: flex-start; gap: 20px; }
-
-    /* ── 공통 버튼 ── */
-    .btn {
-      padding: 12px 32px;
-      border: none; border-radius: 30px;
-      font-size: 16px; font-weight: bold;
-      cursor: pointer;
-      transition: transform 0.1s, opacity 0.1s;
+    /* ── Stage ── */
+    .stage {
+      width: 100%;
+      max-width: 880px;
+      background: var(--bg);
+      border: 2px solid var(--ink);
+      border-radius: 20px;
+      box-shadow: 6px 6px 0 var(--ink);
+      overflow: hidden;
     }
-    .btn:active { transform: scale(0.97); opacity: 0.85; }
-    .btn-primary { background: #6c63ff; color: #fff; }
-    .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
-
-    /* ── 타이틀 씬 ── */
-    #scene-title h1 {
-      font-size: 28px; font-weight: 900;
-      text-align: center; line-height: 1.3; margin-bottom: 8px;
+    .stage-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      border-bottom: 1.5px solid var(--line);
+      background: var(--paper);
     }
-    #scene-title .subtitle { color: #888; font-size: 14px; text-align: center; }
-    .nickname-input {
-      width: 100%; padding: 12px 16px;
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.2);
+    .brand { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; letter-spacing: -0.01em; }
+    .brand-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+    .scene-tag { font-family: "JetBrains Mono", monospace; font-size: 10px; color: var(--ink-mute); letter-spacing: 0.15em; }
+    .beta-tag { font-size: 11px; color: var(--ink-mute); font-weight: 600; letter-spacing: 0.15em; font-family: "JetBrains Mono", monospace; }
+
+    /* ── Scenes ── */
+    .scene { display: none; width: 100%; }
+    .scene.active { display: flex; }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      padding: 14px 24px;
+      background: var(--accent);
+      color: #FFF;
+      border: 1.5px solid var(--ink);
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      box-shadow: 3px 3px 0 var(--ink);
+      transition: all 100ms ease;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-primary:active:not(:disabled) { transform: translate(2px,2px); box-shadow: 0 0 0 var(--ink); }
+    .btn-primary:disabled { background: var(--bg-2); color: var(--ink-mute); box-shadow: 1.5px 1.5px 0 var(--ink); cursor: not-allowed; }
+    .btn-ghost {
+      padding: 14px 24px;
+      background: var(--paper);
+      color: var(--ink);
+      border: 1.5px solid var(--ink);
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      box-shadow: 3px 3px 0 var(--ink);
+      transition: all 100ms ease;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .btn-ghost:active { transform: translate(2px,2px); box-shadow: 0 0 0 var(--ink); }
+
+    /* ═══════════════════════════════════════
+       SCENE 1 — TITLE
+    ═══════════════════════════════════════ */
+    #scene-title {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 44px 32px 36px;
+      gap: 0;
+      position: relative;
+      min-height: 500px;
+    }
+    .s1-eyebrow {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10px; letter-spacing: 0.3em; color: var(--ink-mute); font-weight: 700;
+      margin-bottom: 14px;
+    }
+    .s1-title {
+      font-size: 68px; font-weight: 900; letter-spacing: -0.04em; line-height: 0.88;
+      margin-bottom: 20px;
+    }
+    .s1-title .accent { color: var(--accent); }
+    .s1-sub {
+      font-size: 14px; line-height: 1.75; color: var(--ink-soft);
+      max-width: 300px; margin-bottom: 36px;
+    }
+    .s1-form { width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 12px; }
+    .nick-wrap {
+      position: relative;
+      border: 1.5px solid var(--ink);
+      background: var(--paper);
+      border-radius: 14px;
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+    .nick-label {
+      position: absolute; top: 10px; left: 14px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 9px; letter-spacing: 0.18em; color: var(--ink-mute); font-weight: 700;
+    }
+    .nick-input {
+      width: 100%; background: transparent; border: none; outline: none;
+      padding: 28px 50px 12px 14px;
+      font-size: 18px; font-weight: 700; color: var(--ink);
+    }
+    .nick-count {
+      position: absolute; right: 14px; bottom: 12px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10px; color: var(--ink-mute); font-weight: 600;
+    }
+    .loading-text {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px; color: var(--ink-mute); letter-spacing: 0.08em; text-align: center;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .pulsing { animation: pulse 1s ease-in-out infinite; }
+    /* deco faces */
+    .s1-deco { position: absolute; pointer-events: none; }
+    .deco-1 { top: 10%; left: 5%; }
+    .deco-2 { top: 7%; right: 7%; }
+    .deco-3 { top: 38%; right: 4%; }
+    .deco-4 { top: 42%; left: 4%; }
+    @keyframes bob { 0%,100%{translate:0 0} 50%{translate:0 -9px} }
+    .bob { animation: bob 3.5s ease-in-out infinite; }
+
+    /* ═══════════════════════════════════════
+       SCENE 2 — RPS
+    ═══════════════════════════════════════ */
+    #scene-rps {
+      flex-direction: column;
+      padding: 24px 28px;
+      gap: 14px;
+      min-height: 540px;
+    }
+    .s2-head { text-align: center; }
+    .s2-eyebrow { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 0.3em; color: var(--ink-mute); font-weight: 700; margin-bottom: 6px; }
+    .s2-title { font-size: 26px; font-weight: 900; letter-spacing: -0.03em; margin-bottom: 4px; }
+    .s2-sub { font-size: 13px; color: var(--ink-soft); }
+    .s2-sub strong { font-weight: 800; color: var(--ink); }
+    .rps-stage { display: flex; flex-direction: column; gap: 0; flex: 1; }
+    .rps-panel {
+      border: 1.5px solid var(--ink);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: var(--paper);
+      display: flex; flex-direction: column; gap: 8px;
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+    .rps-panel.ai { background: var(--ink); color: var(--paper); }
+    .rps-row { display: flex; justify-content: space-between; align-items: center; }
+    .rps-name { font-size: 12px; font-weight: 800; letter-spacing: 0.1em; font-family: "JetBrains Mono", monospace; }
+    .rps-tag {
+      font-size: 9px; letter-spacing: 0.2em; font-weight: 800;
+      padding: 3px 8px; border-radius: 999px;
+      background: rgba(255,255,255,0.1); color: rgba(245,241,232,0.7);
+      font-family: "JetBrains Mono", monospace;
+    }
+    .rps-panel.you .rps-tag { background: var(--bg); color: var(--ink-mute); }
+    .rps-display {
+      height: 78px;
+      border: 1.5px solid currentColor;
       border-radius: 12px;
-      color: #fff; font-size: 16px; text-align: center;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    .nickname-input:focus { border-color: #6c63ff; }
-    .nickname-input::placeholder { color: #555; }
-
-    /* ── 가위바위보 씬 ── */
-    .rps-buttons { display: flex; gap: 12px; margin-top: 8px; }
-    .rps-btn {
-      width: 80px; height: 80px; border-radius: 50%;
-      border: 2px solid rgba(255,255,255,0.2);
-      background: rgba(255,255,255,0.05);
-      font-size: 36px; cursor: pointer;
-      transition: transform 0.15s, border-color 0.15s;
-    }
-    .rps-btn:hover { transform: scale(1.1); border-color: #6c63ff; }
-    .rps-result { font-size: 18px; font-weight: bold; min-height: 28px; text-align: center; }
-
-    /* ── 게임 씬 - 메인 영역 ── */
-    .game-main {
-      flex: 1; display: flex; flex-direction: column;
-      align-items: center; gap: 16px; min-width: 0;
-    }
-
-    /* 수비 카운터 */
-    .counter-bar {
-      width: 100%; display: flex;
-      justify-content: space-between; align-items: center;
-      padding: 8px 12px;
-      background: rgba(255,255,255,0.05); border-radius: 10px;
-    }
-    .counter-circles { display: flex; gap: 6px; }
-    .counter-dot {
-      width: 24px; height: 24px; border-radius: 50%;
-      border: 2px solid #4ecdc4; transition: background 0.3s;
-    }
-    .counter-dot.filled { background: #4ecdc4; }
-
-    /* 얼굴 영역 */
-    .faces-area {
-      width: 100%; display: flex; gap: 12px; position: relative;
-    }
-    .face-panel {
-      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px;
-    }
-    .role-label {
-      font-size: 10px; letter-spacing: 2px;
-      text-transform: uppercase; font-weight: bold;
-    }
-    .role-label.attacker { color: #ff6b6b; }
-    .role-label.defender { color: #4ecdc4; }
-    .face-frame {
-      width: 150px; height: 150px;
-      border-radius: 16px; overflow: hidden; position: relative;
-    }
-    .face-frame.attacker { border: 2px solid #ff6b6b; box-shadow: 0 0 20px rgba(255,107,107,0.25); }
-    .face-frame.defender { border: 2px solid #4ecdc4; box-shadow: 0 0 20px rgba(78,205,196,0.25); }
-    .face-frame img { width: 100%; height: 100%; object-fit: cover; }
-    #webcam-video {
-      width: 150px; height: 150px;
-      object-fit: cover; transform: scaleX(-1); border-radius: 14px;
-    }
-    .face-label { font-size: 11px; color: #888; }
-    .expression-badge {
-      padding: 3px 10px; border-radius: 20px; font-size: 11px;
-      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
-      min-height: 24px; display: flex; align-items: center;
-    }
-    .vs-divider {
-      position: absolute; top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      background: #0a0a0f; padding: 4px 8px;
-      border-radius: 50%; font-size: 12px; color: #555;
-      border: 1px solid #333; z-index: 10;
-    }
-
-    /* 액션 영역 */
-    .action-area {
-      width: 100%; padding: 14px 16px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 12px; text-align: center;
-      min-height: 130px;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 6px;
-    }
-    .dibidibideep-text {
-      font-size: 22px; font-weight: 900;
-      letter-spacing: 2px; color: #fff; min-height: 32px;
-    }
-    .action-hint { font-size: 12px; color: #888; }
-    .countdown-display {
-      font-size: 44px; font-weight: 900; color: #6c63ff;
-      min-height: 56px; display: flex; align-items: center; justify-content: center;
-    }
-    /* action-area 안 결과 표시 */
-    .round-result {
-      font-size: 20px; font-weight: 900;
-      min-height: 28px; letter-spacing: 1px;
-    }
-
-    /* ── 랭킹 사이드바 ── */
-    .ranking-sidebar {
-      width: 200px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px;
       background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 14px; padding: 14px 12px;
-      display: flex; flex-direction: column; gap: 10px;
     }
-    .ranking-sidebar h3 {
-      font-size: 12px; letter-spacing: 2px;
-      text-transform: uppercase; color: #888;
+    .rps-panel.you .rps-display { background: var(--bg); }
+    @keyframes rps-shake { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+    .rps-display.shaking { animation: rps-shake 0.3s ease-in-out infinite; }
+    .rps-status { font-size: 11px; opacity: 0.65; text-align: center; font-weight: 600; }
+    .rps-choices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .rps-choice {
+      padding: 12px 8px;
+      background: var(--paper);
+      border: 1.5px solid var(--ink);
+      border-radius: 14px;
+      box-shadow: 3px 3px 0 var(--ink);
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      font-size: 28px;
+      transition: all 100ms ease;
+    }
+    .rps-choice:active:not(:disabled) { transform: translate(2px,2px); box-shadow: 0 0 0 var(--ink); background: var(--accent-soft); }
+    .rps-choice.selected { background: var(--accent); color: #FFF; transform: translate(2px,2px); box-shadow: 0 0 0 var(--ink); }
+    .rps-choice:disabled { opacity: 0.5; cursor: not-allowed; }
+    .rps-choice-label { font-size: 10px; font-weight: 700; color: var(--ink-soft); }
+    .rps-vs { text-align: center; font-size: 20px; font-weight: 900; color: var(--accent); letter-spacing: -0.04em; padding: 6px 0; }
+    .rps-result-box {
+      padding: 14px 16px;
+      border: 1.5px solid var(--ink);
+      border-radius: 14px;
+      background: var(--accent-soft);
+      box-shadow: 3px 3px 0 var(--ink);
+      text-align: center;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .rps-result-box.tie { background: var(--bg-2); }
+    .rps-result-eyebrow { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 0.25em; color: var(--ink-mute); font-weight: 700; }
+    .rps-result-title { font-size: 20px; font-weight: 900; letter-spacing: -0.02em; }
+    .role-tag { color: var(--accent); }
+    .rps-result-desc { font-size: 12px; color: var(--ink-soft); line-height: 1.5; }
+    .rps-actions { display: flex; gap: 8px; justify-content: center; }
+
+    /* ═══════════════════════════════════════
+       SCENE 3 — GAME
+    ═══════════════════════════════════════ */
+    #scene-game {
+      flex-direction: row;
+      align-items: stretch;
+      min-height: 580px;
+    }
+    .game-main {
+      flex: 1;
+      display: flex; flex-direction: column;
+      padding: 16px 20px;
+      gap: 12px;
+      border-right: 1.5px solid var(--line);
+      min-width: 0;
+    }
+    /* Header */
+    .s3-header { display: flex; justify-content: space-between; align-items: flex-start; }
+    .s3-meta { font-family: "JetBrains Mono", monospace; font-size: 10px; color: var(--ink-mute); letter-spacing: 0.2em; font-weight: 700; }
+    .s3-call { font-size: 26px; font-weight: 900; letter-spacing: -0.03em; min-height: 34px; margin-top: 2px; }
+    .s3-call.calling { color: var(--accent); }
+    .role-badge {
+      padding: 6px 14px;
+      border: 1.5px solid var(--ink);
+      border-radius: 999px;
+      font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+      background: var(--paper); white-space: nowrap;
+    }
+    .role-badge.attacker { background: var(--ink); color: var(--paper); }
+    /* Streak */
+    .streak-bar {
+      border: 1.5px solid var(--ink);
+      border-radius: 12px;
+      background: var(--paper);
+      padding: 10px 14px;
+    }
+    .streak-row { display: flex; justify-content: space-between; align-items: center; }
+    .streak-label { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 0.2em; font-weight: 700; color: var(--ink-mute); }
+    .streak-count { font-weight: 900; font-size: 20px; letter-spacing: -0.02em; }
+    .streak-count .total { color: var(--ink-mute); font-size: 13px; font-weight: 700; }
+    .streak-dots { display: flex; gap: 8px; margin-top: 8px; }
+    .streak-dot { flex: 1; height: 8px; border-radius: 4px; border: 1.5px solid var(--ink); background: var(--paper); transition: all 250ms ease; }
+    @keyframes dot-pop { 0%{transform:scaleY(0.3)} 60%{transform:scaleY(1.35)} 100%{transform:scaleY(1)} }
+    .streak-dot.filled { background: var(--accent); animation: dot-pop 350ms ease; }
+    /* Dark face panel */
+    .faces-panel {
+      flex: 1;
+      border: 1.5px solid var(--ink);
+      border-radius: 14px;
+      background: var(--ink);
+      color: var(--paper);
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      position: relative;
+      min-height: 200px;
+    }
+    .faces-panel-head {
+      display: flex; justify-content: space-between;
+      padding: 8px 12px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 9px; letter-spacing: 0.1em;
+      border-bottom: 1.5px solid rgba(255,255,255,0.1);
+    }
+    .live-dot { display: flex; align-items: center; gap: 6px; }
+    .live-dot::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+      animation: live-blink 1.2s ease-in-out infinite;
+    }
+    @keyframes live-blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .faces-stage {
+      flex: 1; display: flex; padding: 16px; gap: 12px;
+      position: relative;
+      background:
+        repeating-linear-gradient(45deg,rgba(255,255,255,0.015),rgba(255,255,255,0.015) 1px,transparent 1px,transparent 8px),
+        radial-gradient(ellipse at center,#2a2520 0%,#1A1714 80%);
+    }
+    .hud { position: absolute; width: 14px; height: 14px; border: 2px solid var(--accent); }
+    .hud-tl { top: 10px; left: 10px; border-right: none; border-bottom: none; }
+    .hud-tr { top: 10px; right: 10px; border-left: none; border-bottom: none; }
+    .hud-bl { bottom: 10px; left: 10px; border-right: none; border-top: none; }
+    .hud-br { bottom: 10px; right: 10px; border-left: none; border-top: none; }
+    .face-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .face-col-label {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 9px; letter-spacing: 0.2em; color: rgba(255,255,255,0.45); font-weight: 700;
+    }
+    .face-col-label.is-attacker { color: var(--accent); }
+    .face-frame {
+      width: 148px; height: 148px;
+      border-radius: 12px; overflow: hidden;
+      border: 1.5px solid rgba(255,255,255,0.15);
+    }
+    .face-frame.is-attacker { border-color: var(--accent); box-shadow: 0 0 18px rgba(255,77,46,0.35); }
+    .face-frame img, #webcam-video {
+      width: 148px; height: 148px;
+      object-fit: cover; display: block; border-radius: 10px;
+    }
+    #webcam-video { transform: scaleX(-1); }
+    .expr-badge {
+      padding: 3px 10px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px;
+      font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.65);
+      letter-spacing: 0.04em;
+    }
+    .vs-label {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      font-size: 14px; font-weight: 900; color: var(--accent);
+      background: var(--ink); padding: 4px 8px; border-radius: 999px;
+      border: 1.5px solid rgba(255,77,46,0.5); z-index: 10;
+    }
+    /* Action area */
+    .action-area {
+      border: 1.5px solid var(--ink);
+      border-radius: 12px;
+      background: var(--paper);
+      overflow: hidden;
+    }
+    .action-prompt {
+      padding: 10px 16px;
+      text-align: center;
+      font-size: 13px; color: var(--ink-soft);
+      border-bottom: 1px solid var(--line);
+      min-height: 42px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .action-prompt strong { color: var(--ink); font-weight: 800; }
+    .action-body {
+      padding: 12px 16px;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .countdown-big {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 40px; font-weight: 900; color: var(--accent);
+      min-height: 52px; display: flex; align-items: center; justify-content: center;
+    }
+    .round-result {
+      font-size: 18px; font-weight: 900; letter-spacing: -0.01em;
+      min-height: 24px; text-align: center;
+    }
+    @keyframes result-pop { 0%{transform:scale(0.7);opacity:0} 60%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+    .result-pop { animation: result-pop 0.3s ease-out forwards; }
+
+    /* ═══════════════════════════════════════
+       RANKING SIDEBAR
+    ═══════════════════════════════════════ */
+    .ranking-sidebar {
+      width: 196px; flex-shrink: 0;
+      padding: 16px 14px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .sidebar-title {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10px; letter-spacing: 0.25em; color: var(--ink-mute); font-weight: 700;
       text-align: center;
     }
     .ranking-list { display: flex; flex-direction: column; gap: 6px; }
     .ranking-item {
       display: flex; align-items: center; gap: 8px;
-      padding: 6px 8px; border-radius: 8px;
-      background: rgba(255,255,255,0.04);
+      padding: 7px 10px;
+      border: 1.5px solid var(--line);
+      border-radius: 10px;
+      background: var(--paper);
       font-size: 12px;
     }
-    .ranking-item.me { background: rgba(108,99,255,0.15); border: 1px solid rgba(108,99,255,0.3); }
-    .ranking-rank { width: 18px; text-align: center; font-weight: 900; color: #888; font-size: 11px; }
-    .ranking-rank.gold { color: #ffd700; }
-    .ranking-rank.silver { color: #c0c0c0; }
-    .ranking-rank.bronze { color: #cd7f32; }
-    .ranking-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .ranking-score { font-weight: 900; color: #6c63ff; font-size: 13px; }
-    .ranking-empty { color: #555; font-size: 12px; text-align: center; padding: 8px 0; }
+    .ranking-item.me { border-color: var(--accent); background: var(--accent-soft); box-shadow: 2px 2px 0 var(--ink); }
+    .ranking-rank { font-family: "JetBrains Mono", monospace; width: 16px; text-align: center; font-weight: 700; font-size: 11px; color: var(--ink-mute); }
+    .ranking-rank.gold { color: #C8920A; }
+    .ranking-rank.silver { color: #707070; }
+    .ranking-rank.bronze { color: #9A5A28; }
+    .ranking-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
+    .ranking-score { font-family: "JetBrains Mono", monospace; font-weight: 900; color: var(--accent); font-size: 12px; }
+    .ranking-empty { color: var(--ink-mute); font-size: 11px; text-align: center; padding: 8px 0; font-style: italic; }
 
-    /* ── 게임오버 씬 ── */
-    #scene-gameover .winner-text { font-size: 28px; font-weight: 900; }
-    #scene-gameover .rounds-text { color: #888; font-size: 14px; }
-    #scene-gameover .score-text { font-size: 20px; font-weight: 900; color: #6c63ff; }
+    /* ═══════════════════════════════════════
+       SCENE 4 — GAME OVER
+    ═══════════════════════════════════════ */
+    #scene-gameover {
+      flex-direction: column;
+      align-items: center;
+      padding: 36px 32px 32px;
+      gap: 16px;
+      text-align: center;
+    }
+    .s4-eyebrow { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 0.3em; color: var(--ink-mute); font-weight: 700; }
+    .s4-title { font-family: "Gaegu", cursive; font-size: 42px; font-weight: 700; margin-top: 4px; }
+    .s4-score {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 17px; font-weight: 700; color: var(--accent);
+      padding: 8px 22px;
+      border: 1.5px solid var(--ink);
+      border-radius: 999px;
+      background: var(--accent-soft);
+      box-shadow: 2px 2px 0 var(--ink);
+    }
+    .s4-sub { font-size: 13px; color: var(--ink-soft); }
+    /* 인생네컷 strip */
+    .photo-strip {
+      display: flex; gap: 8px;
+      background: var(--ink);
+      border-radius: 8px;
+      padding: 14px 14px 44px;
+      box-shadow: 5px 7px 0 var(--accent), 5px 7px 0 1.5px var(--ink);
+      position: relative;
+      transform: rotate(-1.5deg);
+      margin: 4px auto;
+    }
+    .photo-strip::after {
+      content: '페이스 디비디비딥 · 2026';
+      position: absolute; bottom: 14px; left: 0; right: 0; text-align: center;
+      color: var(--paper); font-family: "Gaegu", cursive; font-size: 12px;
+    }
+    .strip-photo {
+      width: 76px; aspect-ratio: 3/4;
+      background: var(--bg-2);
+      border-radius: 4px;
+      overflow: hidden; position: relative;
+    }
+    .strip-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .strip-stamp {
+      position: absolute; top: 4px; left: 4px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 6px; color: rgba(255,255,255,0.6); z-index: 2;
+    }
     .gameover-ranking {
-      width: 100%;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 14px; padding: 14px 16px;
+      width: 100%; max-width: 400px;
+      border: 1.5px solid var(--ink);
+      border-radius: 14px;
+      padding: 16px;
+      background: var(--paper);
+      box-shadow: 3px 3px 0 var(--ink);
     }
-    .gameover-ranking h3 {
-      font-size: 12px; letter-spacing: 2px;
-      text-transform: uppercase; color: #888;
-      margin-bottom: 10px; text-align: center;
+    .gameover-ranking-title {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10px; letter-spacing: 0.25em; color: var(--ink-mute); font-weight: 700;
+      text-align: center; margin-bottom: 12px;
     }
-
-    /* ── 로딩 ── */
-    .loading-text { color: #888; font-size: 13px; text-align: center; }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; } 50% { opacity: 0.5; }
-    }
-    .pulsing { animation: pulse 1s ease-in-out infinite; }
-
-    @keyframes dibidibideep-anim {
-      0% { transform: scale(0.8); opacity: 0; }
-      50% { transform: scale(1.1); opacity: 1; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-    .dibidibideep-enter { animation: dibidibideep-anim 0.4s ease-out forwards; }
-
-    @keyframes result-pop {
-      0% { transform: scale(0.7); opacity: 0; }
-      60% { transform: scale(1.1); }
-      100% { transform: scale(1); opacity: 1; }
-    }
-    .result-pop { animation: result-pop 0.35s ease-out forwards; }
+    .s4-actions { display: flex; gap: 10px; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
 </head>
 <body>
-  <!-- Scene 1: 타이틀 -->
+
+<div class="stage">
+  <div class="stage-header">
+    <div class="brand"><span class="brand-dot"></span>페이스 디비디비딥</div>
+    <div id="scene-tag" class="scene-tag">SCENE · 01 / 타이틀</div>
+    <div class="beta-tag">FACE.AI · BETA</div>
+  </div>
+
+  <!-- ── Scene 1: 타이틀 ── -->
   <div id="scene-title" class="scene active">
-    <h1>페이스<br>디비디비딥</h1>
-    <p class="subtitle">웹캠으로 표정을 인식하는 얼굴 게임</p>
-    <input id="nickname-input" class="nickname-input" type="text" maxlength="12"
-           placeholder="닉네임을 입력하세요" autocomplete="off">
-    <p id="loading-status" class="loading-text pulsing">웹캠 및 AI 모델 로딩 중...</p>
-    <button id="btn-start" class="btn btn-primary" disabled>시작하기</button>
+    <!-- 장식 SVG 얼굴들 -->
+    <div class="s1-deco deco-1 bob" style="animation-delay:0s">
+      <svg width="62" height="62" viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#FFD56B" stroke="#1A1714" stroke-width="2"/><ellipse cx="22" cy="24" rx="2.6" ry="3.2" fill="#1A1714"/><ellipse cx="38" cy="24" rx="2.6" ry="3.2" fill="#1A1714"/><path d="M22 38 Q30 44 38 38" stroke="#1A1714" stroke-width="2.4" fill="none" stroke-linecap="round"/><ellipse cx="16" cy="34" rx="3" ry="2" fill="#FF4D2E" opacity="0.4"/><ellipse cx="44" cy="34" rx="3" ry="2" fill="#FF4D2E" opacity="0.4"/></svg>
+    </div>
+    <div class="s1-deco deco-2 bob" style="animation-delay:0.6s">
+      <svg width="54" height="54" viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#FF9E80" stroke="#1A1714" stroke-width="2"/><ellipse cx="19" cy="26" rx="2.6" ry="3.2" fill="#1A1714"/><ellipse cx="35" cy="26" rx="2.6" ry="3.2" fill="#1A1714"/><path d="M22 38 Q30 44 38 38" stroke="#1A1714" stroke-width="2.4" fill="none" stroke-linecap="round"/><ellipse cx="16" cy="34" rx="3" ry="2" fill="#FF4D2E" opacity="0.4"/><ellipse cx="44" cy="34" rx="3" ry="2" fill="#FF4D2E" opacity="0.4"/></svg>
+    </div>
+    <div class="s1-deco deco-3 bob" style="animation-delay:1.1s">
+      <svg width="58" height="58" viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#9EC9FF" stroke="#1A1714" stroke-width="2"/><ellipse cx="25" cy="26" rx="2.6" ry="3.2" fill="#1A1714"/><ellipse cx="41" cy="26" rx="2.6" ry="3.2" fill="#1A1714"/><path d="M22 38 Q30 44 38 38" stroke="#1A1714" stroke-width="2.4" fill="none" stroke-linecap="round"/><ellipse cx="16" cy="34" rx="3" ry="2" fill="#FF4D2E" opacity="0.4"/><ellipse cx="44" cy="34" rx="3" ry="2" fill="#FF4D2E" opacity="0.4"/></svg>
+    </div>
+    <div class="s1-deco deco-4 bob" style="animation-delay:1.6s">
+      <svg width="50" height="50" viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#C2E8B9" stroke="#1A1714" stroke-width="2"/><ellipse cx="22" cy="28" rx="2.6" ry="3.2" fill="#1A1714"/><ellipse cx="38" cy="28" rx="2.6" ry="3.2" fill="#1A1714"/><path d="M22 38 Q30 44 38 38" stroke="#1A1714" stroke-width="2.4" fill="none" stroke-linecap="round"/><ellipse cx="16" cy="34" rx="3" ry="2" fill="#FF4D2E" opacity="0.4"/><ellipse cx="44" cy="34" rx="3" ry="2" fill="#FF4D2E" opacity="0.4"/></svg>
+    </div>
+
+    <div class="s1-eyebrow">FACE GAME · v0.1</div>
+    <h1 class="s1-title">페이스<br><span class="accent">디비디비</span>딥</h1>
+    <p class="s1-sub">
+      웹캠으로 표정을 인식하는 얼굴 게임.<br>
+      공격자와 <strong>다른 표정</strong>을 지어 살아남아라!<br>
+      3번 막아내면 승리!
+    </p>
+
+    <div class="s1-form">
+      <div class="nick-wrap">
+        <div class="nick-label">NICKNAME · 최대 12자</div>
+        <input id="nickname-input" class="nick-input" type="text" maxlength="12" placeholder="병재" autocomplete="off">
+        <div id="nick-count" class="nick-count">0/12</div>
+      </div>
+      <p id="loading-status" class="loading-text pulsing">AI 모델 로딩 중…</p>
+      <button id="btn-start" class="btn-primary" disabled>시작하기 →</button>
+    </div>
     <video id="webcam-video-init" style="display:none" playsinline></video>
   </div>
 
-  <!-- Scene 2: 가위바위보 -->
+  <!-- ── Scene 2: 가위바위보 ── -->
   <div id="scene-rps" class="scene">
-    <h2 style="font-size:22px;font-weight:900;">가위바위보로<br>역할을 정합니다</h2>
-    <div class="rps-buttons">
-      <button class="rps-btn" data-choice="scissors">✌️</button>
-      <button class="rps-btn" data-choice="rock">✊</button>
-      <button class="rps-btn" data-choice="paper">🖐️</button>
+    <div class="s2-head">
+      <div class="s2-eyebrow">STEP 01 · 역할 정하기</div>
+      <h2 class="s2-title">가위바위보</h2>
+      <p class="s2-sub">이긴 사람이 <strong>공격</strong> · 진 사람이 <strong>수비</strong></p>
     </div>
-    <div id="rps-result" class="rps-result"></div>
-    <div id="rps-role-display" style="font-size:14px;color:#888;min-height:20px;"></div>
+
+    <div class="rps-stage">
+      <!-- AI 패널 -->
+      <div class="rps-panel ai">
+        <div class="rps-row">
+          <span class="rps-name">OPPONENT · AI</span>
+          <span class="rps-tag">상대</span>
+        </div>
+        <div id="ai-rps-display" class="rps-display">
+          <span style="font-size:36px;color:rgba(255,255,255,0.3)">?</span>
+        </div>
+        <div id="ai-rps-status" class="rps-status">대기 중…</div>
+      </div>
+
+      <div class="rps-vs">VS</div>
+
+      <!-- 플레이어 패널 -->
+      <div class="rps-panel you">
+        <div class="rps-row">
+          <span class="rps-name">PLAYER · YOU</span>
+          <span class="rps-tag" style="background:var(--bg);color:var(--ink-mute);">나</span>
+        </div>
+        <div id="player-rps-display" class="rps-display">
+          <span style="font-size:36px;color:var(--ink-mute)">?</span>
+        </div>
+        <div class="rps-choices">
+          <button class="rps-choice" data-choice="scissors">✌️<span class="rps-choice-label">가위</span></button>
+          <button class="rps-choice" data-choice="rock">✊<span class="rps-choice-label">바위</span></button>
+          <button class="rps-choice" data-choice="paper">🖐️<span class="rps-choice-label">보</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div id="rps-result-box" style="display:none" class="rps-result-box">
+      <div id="rps-result-eyebrow" class="rps-result-eyebrow"></div>
+      <div id="rps-result-title" class="rps-result-title"></div>
+      <div id="rps-result-desc" class="rps-result-desc"></div>
+      <div class="rps-actions" id="rps-actions"></div>
+    </div>
   </div>
 
-  <!-- Scene 3: 게임 라운드 -->
+  <!-- ── Scene 3: 게임 라운드 ── -->
   <div id="scene-game" class="scene">
-    <!-- 게임 메인 -->
     <div class="game-main">
-      <div class="counter-bar">
-        <span style="font-size:12px;color:#aaa;">수비 연속</span>
-        <div class="counter-circles" id="counter-dots"></div>
-        <span id="counter-text" style="font-size:12px;color:#aaa;">0 / 3</span>
+      <!-- 헤더 -->
+      <div class="s3-header">
+        <div>
+          <div id="s3-meta" class="s3-meta">YOU · 수비자</div>
+          <div id="s3-call" class="s3-call">준비…</div>
+        </div>
+        <div id="role-badge" class="role-badge">수비</div>
       </div>
 
-      <div class="faces-area">
-        <div class="face-panel">
-          <span id="ai-role-label" class="role-label attacker">공격자</span>
-          <div class="face-frame attacker" id="ai-face-frame">
-            <img id="ai-face-img" src="assets/neutral.jpg" alt="AI">
-          </div>
-          <span class="face-label">AI 상대</span>
-          <span id="ai-expression-badge" class="expression-badge">😐 대기 중</span>
+      <!-- 스트릭 바 -->
+      <div class="streak-bar">
+        <div class="streak-row">
+          <span class="streak-label">DEFENSE STREAK</span>
+          <span class="streak-count"><span id="streak-num">0</span><span class="total">/3</span></span>
         </div>
-
-        <div class="vs-divider">VS</div>
-
-        <div class="face-panel">
-          <span id="player-role-label" class="role-label defender">수비자</span>
-          <div class="face-frame defender">
-            <video id="webcam-video" playsinline autoplay muted></video>
-          </div>
-          <span class="face-label" id="player-name-label">나</span>
-          <span id="player-expression-badge" class="expression-badge">😐 대기 중</span>
+        <div class="streak-dots" id="streak-dots">
+          <div class="streak-dot"></div>
+          <div class="streak-dot"></div>
+          <div class="streak-dot"></div>
         </div>
       </div>
 
+      <!-- 얼굴 패널 (다크) -->
+      <div class="faces-panel">
+        <div class="faces-panel-head">
+          <span class="live-dot">FACE.AI · LIVE</span>
+          <span id="faces-panel-right">OPPONENT · 디비봇</span>
+        </div>
+        <div class="faces-stage">
+          <!-- HUD 코너 -->
+          <div class="hud hud-tl"></div>
+          <div class="hud hud-tr"></div>
+          <div class="hud hud-bl"></div>
+          <div class="hud hud-br"></div>
+          <!-- VS 중앙 -->
+          <div class="vs-label">VS</div>
+
+          <!-- AI 얼굴 -->
+          <div class="face-col">
+            <span id="ai-face-label" class="face-col-label is-attacker">공격자 · AI</span>
+            <div id="ai-face-frame" class="face-frame is-attacker">
+              <img id="ai-face-img" src="assets/neutral.jpg" alt="AI">
+            </div>
+            <span id="ai-expr-badge" class="expr-badge">😐 대기 중</span>
+          </div>
+
+          <!-- 플레이어 웹캠 -->
+          <div class="face-col">
+            <span id="player-face-label" class="face-col-label">수비자 · 나</span>
+            <div id="player-face-frame" class="face-frame">
+              <video id="webcam-video" playsinline autoplay muted></video>
+            </div>
+            <span id="player-expr-badge" class="expr-badge">😐 대기 중</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 액션 영역 -->
       <div class="action-area">
-        <div id="dibidibideep-text" class="dibidibideep-text"></div>
-        <div id="round-result" class="round-result"></div>
-        <div id="action-hint" class="action-hint">준비되면 버튼을 누르세요</div>
-        <div id="countdown-display" class="countdown-display"></div>
-        <button id="btn-ready" class="btn btn-primary">준비!</button>
+        <div id="action-prompt" class="action-prompt">준비되면 버튼을 누르세요</div>
+        <div class="action-body">
+          <div id="countdown-display" class="countdown-big"></div>
+          <div id="round-result" class="round-result"></div>
+          <button id="btn-ready" class="btn-primary">준비!</button>
+        </div>
       </div>
     </div>
 
     <!-- 랭킹 사이드바 -->
     <div class="ranking-sidebar">
-      <h3>🏆 랭킹</h3>
+      <div class="sidebar-title">🏆 RANKING</div>
       <div id="game-ranking-list" class="ranking-list"></div>
     </div>
   </div>
 
-  <!-- Scene 4: 게임 오버 -->
+  <!-- ── Scene 4: 게임 오버 ── -->
   <div id="scene-gameover" class="scene">
-    <div style="font-size:56px;" id="gameover-emoji">🏆</div>
-    <div id="winner-text" class="winner-text"></div>
-    <div id="score-text" class="score-text"></div>
-    <div id="rounds-text" class="rounds-text"></div>
+    <div id="s4-eyebrow" class="s4-eyebrow">RESULT · 수비자 승리</div>
+    <div id="s4-title" class="s4-title">내가 챔피언! 🏆</div>
+    <div id="s4-score" class="s4-score" style="display:none"></div>
+    <div id="s4-sub" class="s4-sub"></div>
+
+    <!-- 인생네컷 포토 스트립 -->
+    <div class="photo-strip" id="photo-strip"></div>
+
+    <!-- 랭킹 -->
     <div class="gameover-ranking">
-      <h3>🏆 랭킹</h3>
+      <div class="gameover-ranking-title">🏆 RANKING</div>
       <div id="gameover-ranking-list" class="ranking-list"></div>
     </div>
-    <button id="btn-replay" class="btn btn-primary">다시하기</button>
+
+    <div class="s4-actions">
+      <button id="btn-replay" class="btn-primary">다시하기 →</button>
+    </div>
   </div>
 
-  <script>
-    // ── 전역 상태 ──────────────────────────────────────────────
-    const state = {
-      faceMesh: null,
-      camera: null,
-      videoEl: null,
-      lastLandmarks: null,
-      playerRole: null,
-      aiRole: null,
-      defenseStreak: 0,
-      totalRounds: 0,
-      playerName: '플레이어',
-    };
+</div><!-- .stage -->
 
-    // ── 씬 전환 ────────────────────────────────────────────────
-    function showScene(id) {
-      document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-    }
+<script>
+  // ── 전역 상태 ──────────────────────────────────────────────
+  const state = {
+    faceMesh: null,
+    camera: null,
+    videoEl: null,
+    lastLandmarks: null,
+    playerRole: null,
+    aiRole: null,
+    defenseStreak: 0,
+    totalRounds: 0,
+    playerName: '플레이어',
+    roundPhotos: [], // aiExpr 최대 4개
+  };
 
-    // ── 표정 감지 ──────────────────────────────────────────────
-    const EAR_THRESHOLD = 0.2;
-    const EAR_OPEN_THRESHOLD = 0.25;
-    const LEFT_EYE = [33, 160, 158, 133, 153, 144];
-    const RIGHT_EYE = [362, 385, 387, 263, 373, 380];
-    const MOUTH_TOP = 13;
-    const MOUTH_BOTTOM = 14;
-    const MOUTH_LEFT = 78;
-    const MOUTH_RIGHT = 308;
-    const MAR_THRESHOLD = 0.4;
+  // ── 씬 전환 ────────────────────────────────────────────────
+  const SCENE_LABELS = {
+    'scene-title': '01 / 타이틀',
+    'scene-rps':   '02 / 가위바위보',
+    'scene-game':  '03 / 라운드',
+    'scene-gameover': '04 / 결과',
+  };
+  function showScene(id) {
+    document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.getElementById('scene-tag').textContent = 'SCENE · ' + (SCENE_LABELS[id] || '');
+  }
 
-    function calcEAR(landmarks, indices) {
-      const p = indices.map(i => landmarks[i]);
-      const v1 = Math.hypot(p[1].x - p[5].x, p[1].y - p[5].y);
-      const v2 = Math.hypot(p[2].x - p[4].x, p[2].y - p[4].y);
-      const h  = Math.hypot(p[0].x - p[3].x, p[0].y - p[3].y);
-      return (v1 + v2) / (2 * h);
-    }
+  // ── 닉네임 카운터 ──────────────────────────────────────────
+  document.getElementById('nickname-input').addEventListener('input', function() {
+    document.getElementById('nick-count').textContent = this.value.length + '/12';
+  });
 
-    function detectExpression(landmarks) {
-      if (!landmarks || landmarks.length === 0) return null;
+  // ── 표정 감지 ──────────────────────────────────────────────
+  const EAR_THRESHOLD = 0.2;
+  const EAR_OPEN_THRESHOLD = 0.25;
+  const LEFT_EYE  = [33, 160, 158, 133, 153, 144];
+  const RIGHT_EYE = [362, 385, 387, 263, 373, 380];
+  const MOUTH_TOP = 13, MOUTH_BOTTOM = 14, MOUTH_LEFT = 78, MOUTH_RIGHT = 308;
+  const MAR_THRESHOLD = 0.4;
 
-      const mouthH = Math.hypot(
-        landmarks[MOUTH_TOP].x - landmarks[MOUTH_BOTTOM].x,
-        landmarks[MOUTH_TOP].y - landmarks[MOUTH_BOTTOM].y
-      );
-      const mouthW = Math.hypot(
-        landmarks[MOUTH_LEFT].x - landmarks[MOUTH_RIGHT].x,
-        landmarks[MOUTH_LEFT].y - landmarks[MOUTH_RIGHT].y
-      );
-      if (mouthW > 0 && mouthH / mouthW > MAR_THRESHOLD) return 'tongue';
+  function calcEAR(landmarks, indices) {
+    const p = indices.map(i => landmarks[i]);
+    const v1 = Math.hypot(p[1].x - p[5].x, p[1].y - p[5].y);
+    const v2 = Math.hypot(p[2].x - p[4].x, p[2].y - p[4].y);
+    const h  = Math.hypot(p[0].x - p[3].x, p[0].y - p[3].y);
+    return (v1 + v2) / (2 * h);
+  }
 
-      const leftEAR  = calcEAR(landmarks, LEFT_EYE);
-      const rightEAR = calcEAR(landmarks, RIGHT_EYE);
-      if (leftEAR  < EAR_THRESHOLD && rightEAR > EAR_OPEN_THRESHOLD) return 'wink_right';
-      if (rightEAR < EAR_THRESHOLD && leftEAR  > EAR_OPEN_THRESHOLD) return 'wink_left';
+  function detectExpression(landmarks) {
+    if (!landmarks || landmarks.length === 0) return null;
+    const mouthH = Math.hypot(landmarks[MOUTH_TOP].x - landmarks[MOUTH_BOTTOM].x, landmarks[MOUTH_TOP].y - landmarks[MOUTH_BOTTOM].y);
+    const mouthW = Math.hypot(landmarks[MOUTH_LEFT].x - landmarks[MOUTH_RIGHT].x, landmarks[MOUTH_LEFT].y - landmarks[MOUTH_RIGHT].y);
+    if (mouthW > 0 && mouthH / mouthW > MAR_THRESHOLD) return 'tongue';
+    const leftEAR  = calcEAR(landmarks, LEFT_EYE);
+    const rightEAR = calcEAR(landmarks, RIGHT_EYE);
+    if (leftEAR  < EAR_THRESHOLD && rightEAR > EAR_OPEN_THRESHOLD) return 'wink_right';
+    if (rightEAR < EAR_THRESHOLD && leftEAR  > EAR_OPEN_THRESHOLD) return 'wink_left';
+    return 'neutral';
+  }
 
-      return 'neutral';
-    }
+  // ── FaceMesh 초기화 ────────────────────────────────────────
+  async function initFaceMesh(videoElement) {
+    const faceMesh = new FaceMesh({ locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}` });
+    faceMesh.setOptions({ maxNumFaces:1, refineLandmarks:true, minDetectionConfidence:0.5, minTrackingConfidence:0.5 });
+    faceMesh.onResults(results => { state.lastLandmarks = results.multiFaceLandmarks?.[0] || null; });
+    await faceMesh.initialize();
+    state.faceMesh = faceMesh;
+    return faceMesh;
+  }
 
-    // ── FaceMesh 초기화 ────────────────────────────────────────
-    async function initFaceMesh(videoElement) {
-      const faceMesh = new FaceMesh({
-        locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+  async function startCamera(videoElement, faceMesh) {
+    return new Promise((resolve, reject) => {
+      const camera = new Camera(videoElement, {
+        onFrame: async () => { await faceMesh.send({ image: videoElement }); },
+        width: 320, height: 240,
       });
-      faceMesh.setOptions({
-        maxNumFaces: 1, refineLandmarks: true,
-        minDetectionConfidence: 0.5, minTrackingConfidence: 0.5,
-      });
-      faceMesh.onResults(results => {
-        state.lastLandmarks = results.multiFaceLandmarks?.[0] || null;
-      });
-      await faceMesh.initialize();
-      state.faceMesh = faceMesh;
-      return faceMesh;
+      camera.start().then(() => { state.camera = camera; state.videoEl = videoElement; resolve(camera); }).catch(reject);
+    });
+  }
+
+  // ── 랭킹 ──────────────────────────────────────────────────
+  const RANKING_KEY = 'dibidibideep_ranking';
+  function loadRanking() { try { return JSON.parse(localStorage.getItem(RANKING_KEY)) || []; } catch { return []; } }
+  function saveRanking(entry) {
+    const list = loadRanking();
+    list.push(entry);
+    list.sort((a, b) => b.score - a.score);
+    localStorage.setItem(RANKING_KEY, JSON.stringify(list.slice(0, 20)));
+  }
+  function calcScore(rounds) { return 100 + Math.max(0, (10 - rounds) * 10); }
+  function renderRanking(containerId, highlightName) {
+    const list = loadRanking();
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    if (list.length === 0) { el.innerHTML = '<div class="ranking-empty">아직 기록이 없어요</div>'; return; }
+    const rankClass = ['gold', 'silver', 'bronze'];
+    el.innerHTML = list.slice(0, 10).map((item, i) => {
+      const isMe = highlightName && item.name === highlightName && item._latest;
+      return `<div class="ranking-item${isMe ? ' me' : ''}">
+        <span class="ranking-rank ${rankClass[i] || ''}">${i + 1}</span>
+        <span class="ranking-name">${item.name}</span>
+        <span class="ranking-score">${item.score}</span>
+      </div>`;
+    }).join('');
+  }
+
+  // ── 타이틀 씬 초기화 ───────────────────────────────────────
+  (async () => {
+    const statusEl = document.getElementById('loading-status');
+    const btnStart = document.getElementById('btn-start');
+    const initVideo = document.getElementById('webcam-video-init');
+    try {
+      statusEl.textContent = 'AI 모델 로딩 중…';
+      await initFaceMesh(initVideo);
+      statusEl.textContent = '웹캠 연결 중…';
+      await startCamera(initVideo, state.faceMesh);
+      statusEl.textContent = '✓ 준비 완료!';
+      statusEl.classList.remove('pulsing');
+      btnStart.disabled = false;
+    } catch (e) {
+      statusEl.textContent = '오류: ' + e.message;
     }
+    btnStart.addEventListener('click', () => {
+      const raw = document.getElementById('nickname-input').value.trim();
+      state.playerName = raw || '플레이어';
+      showScene('scene-rps');
+      initRpsScene();
+    });
+  })();
 
-    async function startCamera(videoElement, faceMesh) {
-      return new Promise((resolve, reject) => {
-        const camera = new Camera(videoElement, {
-          onFrame: async () => { await faceMesh.send({ image: videoElement }); },
-          width: 320, height: 240,
-        });
-        camera.start().then(() => {
-          state.camera = camera;
-          state.videoEl = videoElement;
-          resolve(camera);
-        }).catch(reject);
-      });
-    }
+  // ── 가위바위보 씬 ──────────────────────────────────────────
+  const RPS_CHOICES = ['scissors', 'rock', 'paper'];
+  const RPS_EMOJI   = { scissors: '✌️', rock: '✊', paper: '🖐️' };
+  const RPS_WIN     = { scissors: 'paper', rock: 'scissors', paper: 'rock' };
 
-    // ── 랭킹 (localStorage) ────────────────────────────────────
-    const RANKING_KEY = 'dibidibideep_ranking';
+  function initRpsScene() {
+    // 초기화
+    document.getElementById('ai-rps-display').innerHTML = '<span style="font-size:36px;color:rgba(255,255,255,0.3)">?</span>';
+    document.getElementById('player-rps-display').innerHTML = '<span style="font-size:36px;color:var(--ink-mute)">?</span>';
+    document.getElementById('ai-rps-status').textContent = '대기 중…';
+    document.getElementById('rps-result-box').style.display = 'none';
+    document.querySelectorAll('.rps-choice').forEach(btn => {
+      btn.disabled = false;
+      btn.classList.remove('selected');
+    });
 
-    function loadRanking() {
-      try { return JSON.parse(localStorage.getItem(RANKING_KEY)) || []; }
-      catch { return []; }
-    }
+    document.querySelectorAll('.rps-choice').forEach(btn => {
+      btn.onclick = () => {
+        if (btn.disabled) return;
+        const playerChoice = btn.dataset.choice;
 
-    function saveRanking(entry) {
-      const list = loadRanking();
-      list.push(entry);
-      list.sort((a, b) => b.score - a.score);
-      localStorage.setItem(RANKING_KEY, JSON.stringify(list.slice(0, 20)));
-    }
+        // 선택 표시
+        document.querySelectorAll('.rps-choice').forEach(b => { b.disabled = true; b.classList.remove('selected'); });
+        btn.classList.add('selected');
+        document.getElementById('player-rps-display').textContent = RPS_EMOJI[playerChoice];
+        document.getElementById('ai-rps-status').textContent = '내는 중…';
 
-    function calcScore(rounds) {
-      return 100 + Math.max(0, (10 - rounds) * 10);
-    }
+        // AI 흔들기
+        const aiDisp = document.getElementById('ai-rps-display');
+        aiDisp.classList.add('shaking');
+        const shakeId = setInterval(() => {
+          aiDisp.textContent = RPS_EMOJI[RPS_CHOICES[Math.floor(Math.random() * 3)]];
+        }, 120);
 
-    function renderRanking(containerId, highlightName) {
-      const list = loadRanking();
-      const el = document.getElementById(containerId);
-      if (!el) return;
-      if (list.length === 0) {
-        el.innerHTML = '<div class="ranking-empty">아직 기록이 없어요</div>';
-        return;
-      }
-      const rankSymbols = ['gold', 'silver', 'bronze'];
-      el.innerHTML = list.slice(0, 10).map((item, i) => {
-        const rankClass = rankSymbols[i] || '';
-        const isMe = highlightName && item.name === highlightName && item._latest;
-        return `<div class="ranking-item${isMe ? ' me' : ''}">
-          <span class="ranking-rank ${rankClass}">${i + 1}</span>
-          <span class="ranking-name">${item.name}</span>
-          <span class="ranking-score">${item.score}</span>
-        </div>`;
-      }).join('');
-    }
-
-    // ── 타이틀 씬 초기화 ───────────────────────────────────────
-    (async () => {
-      const statusEl  = document.getElementById('loading-status');
-      const btnStart  = document.getElementById('btn-start');
-      const initVideo = document.getElementById('webcam-video-init');
-      try {
-        statusEl.textContent = 'AI 모델 로딩 중...';
-        await initFaceMesh(initVideo);
-        statusEl.textContent = '웹캠 연결 중...';
-        await startCamera(initVideo, state.faceMesh);
-        statusEl.textContent = '준비 완료!';
-        statusEl.classList.remove('pulsing');
-        btnStart.disabled = false;
-      } catch (e) {
-        statusEl.textContent = '오류: ' + e.message;
-      }
-
-      btnStart.addEventListener('click', () => {
-        const raw = document.getElementById('nickname-input').value.trim();
-        state.playerName = raw || '플레이어';
-        showScene('scene-rps');
-        initRpsScene();
-      });
-    })();
-
-    // ── 가위바위보 씬 ──────────────────────────────────────────
-    const RPS_CHOICES = ['scissors', 'rock', 'paper'];
-    const RPS_EMOJI   = { scissors: '✌️', rock: '✊', paper: '🖐️' };
-    const RPS_WIN     = { scissors: 'paper', rock: 'scissors', paper: 'rock' };
-
-    function initRpsScene() {
-      document.getElementById('rps-result').textContent = '';
-      document.getElementById('rps-role-display').textContent = '';
-
-      document.querySelectorAll('.rps-btn').forEach(btn => {
-        btn.onclick = () => {
-          const playerChoice = btn.dataset.choice;
+        setTimeout(() => {
+          clearInterval(shakeId);
+          aiDisp.classList.remove('shaking');
           const aiChoice = RPS_CHOICES[Math.floor(Math.random() * 3)];
-          const resultEl = document.getElementById('rps-result');
-          const roleEl   = document.getElementById('rps-role-display');
+          aiDisp.textContent = RPS_EMOJI[aiChoice];
+          document.getElementById('ai-rps-status').textContent = RPS_EMOJI[aiChoice];
 
-          resultEl.textContent = `나: ${RPS_EMOJI[playerChoice]}  vs  AI: ${RPS_EMOJI[aiChoice]}`;
+          const resultBox = document.getElementById('rps-result-box');
+          resultBox.style.display = 'flex';
 
           if (playerChoice === aiChoice) {
-            roleEl.textContent = '비겼어요! 다시 선택하세요.';
-            return;
-          }
-
-          if (RPS_WIN[playerChoice] === aiChoice) {
-            state.playerRole = 'attacker'; state.aiRole = 'defender';
-            roleEl.textContent = '🎉 이겼습니다! 공격자가 됩니다.';
+            resultBox.className = 'rps-result-box tie';
+            document.getElementById('rps-result-eyebrow').textContent = 'RESULT · 무승부';
+            document.getElementById('rps-result-title').innerHTML = '비겼다!';
+            document.getElementById('rps-result-desc').textContent = '한 번 더 가위바위보 해요';
+            document.getElementById('rps-actions').innerHTML = '<button class="btn-primary" onclick="initRpsScene()">다시 →</button>';
           } else {
-            state.playerRole = 'defender'; state.aiRole = 'attacker';
-            roleEl.textContent = '😅 졌습니다! 수비자가 됩니다.';
+            const win = RPS_WIN[playerChoice] === aiChoice;
+            resultBox.className = 'rps-result-box';
+            document.getElementById('rps-result-eyebrow').textContent = 'RESULT · ' + (win ? '승리' : '패배');
+            document.getElementById('rps-result-title').innerHTML = `당신은 <span class="role-tag">${win ? '공격자' : '수비자'}</span>!`;
+            document.getElementById('rps-result-desc').textContent = win
+              ? '공격자로서 수비자와 같은 표정을 지어 맞혀보세요!'
+              : '수비자로서 공격자와 다른 표정을 지어야 살아남아요!';
+            document.getElementById('rps-actions').innerHTML = `
+              <button class="btn-ghost" onclick="initRpsScene()">한 번 더</button>
+              <button class="btn-primary" id="rps-proceed-btn">라운드 시작 →</button>
+            `;
+            state.playerRole = win ? 'attacker' : 'defender';
+            state.aiRole = win ? 'defender' : 'attacker';
+            document.getElementById('rps-proceed-btn').onclick = () => {
+              state.defenseStreak = 0;
+              state.totalRounds = 0;
+              state.roundPhotos = [];
+              startGameScene();
+            };
           }
-
-          state.defenseStreak = 0;
-          state.totalRounds   = 0;
-          setTimeout(() => startGameScene(), 1500);
-        };
-      });
-    }
-
-    // ── 카운터 도트 ────────────────────────────────────────────
-    function renderCounterDots(streak) {
-      const container = document.getElementById('counter-dots');
-      container.innerHTML = '';
-      for (let i = 0; i < 3; i++) {
-        const dot = document.createElement('div');
-        dot.className = 'counter-dot' + (i < streak ? ' filled' : '');
-        container.appendChild(dot);
-      }
-      document.getElementById('counter-text').textContent = `${streak} / 3`;
-    }
-
-    // ── AI 이미지 / 표정 맵 ────────────────────────────────────
-    const AI_IMAGES = {
-      neutral:    'assets/neutral.jpg',
-      wink_left:  'assets/wink_left.jpg',
-      wink_right: 'assets/wink_right.jpg',
-      tongue:     'assets/tongue.jpg',
-    };
-    const EXPRESSION_LABEL = {
-      neutral:    '😐 대기 중',
-      wink_left:  '😉 왼쪽 윙크',
-      wink_right: '😉 오른쪽 윙크',
-      tongue:     '😛 메롱',
-    };
-    const EXPRESSIONS = ['wink_left', 'wink_right', 'tongue'];
-
-    function updateRoleUI() {
-      const aiRoleEl     = document.getElementById('ai-role-label');
-      const playerRoleEl = document.getElementById('player-role-label');
-      const aiFrame      = document.getElementById('ai-face-frame');
-      const playerFrame  = document.querySelector('#scene-game .face-panel:last-child .face-frame');
-
-      aiRoleEl.textContent     = state.aiRole     === 'attacker' ? '공격자' : '수비자';
-      aiRoleEl.className       = 'role-label ' + state.aiRole;
-      playerRoleEl.textContent = state.playerRole === 'attacker' ? '공격자' : '수비자';
-      playerRoleEl.className   = 'role-label ' + state.playerRole;
-
-      aiFrame.className    = 'face-frame ' + state.aiRole;
-      if (playerFrame) playerFrame.className = 'face-frame ' + state.playerRole;
-    }
-
-    // ── 게임 씬 진입 ───────────────────────────────────────────
-    async function startGameScene() {
-      const gameVideo = document.getElementById('webcam-video');
-      if (state.videoEl && state.videoEl !== gameVideo) {
-        state.camera.stop();
-        await startCamera(gameVideo, state.faceMesh);
-      }
-
-      document.getElementById('player-name-label').textContent = state.playerName;
-      showScene('scene-game');
-      renderCounterDots(state.defenseStreak);
-      renderRanking('game-ranking-list', null);
-      updateRoleUI();
-      document.getElementById('ai-face-img').src = AI_IMAGES.neutral;
-      document.getElementById('ai-expression-badge').textContent  = EXPRESSION_LABEL.neutral;
-      document.getElementById('player-expression-badge').textContent = EXPRESSION_LABEL.neutral;
-      document.getElementById('dibidibideep-text').textContent = '';
-      document.getElementById('round-result').textContent     = '';
-      document.getElementById('round-result').style.color     = '';
-      document.getElementById('action-hint').textContent      = '준비되면 버튼을 누르세요';
-      document.getElementById('countdown-display').textContent = '';
-
-      const btnReady = document.getElementById('btn-ready');
-      btnReady.style.display = 'inline-block';
-      btnReady.onclick = startRound;
-    }
-
-    // ── 라운드 시작 ────────────────────────────────────────────
-    function startRound() {
-      state.totalRounds++;
-      document.getElementById('btn-ready').style.display = 'none';
-      document.getElementById('round-result').textContent = '';
-
-      const expressionInterval = setInterval(() => {
-        const expr = detectExpression(state.lastLandmarks);
-        if (expr) {
-          document.getElementById('player-expression-badge').textContent =
-            EXPRESSION_LABEL[expr] || EXPRESSION_LABEL.neutral;
-        }
-      }, 200);
-
-      const dibEl   = document.getElementById('dibidibideep-text');
-      const hintEl  = document.getElementById('action-hint');
-      const countEl = document.getElementById('countdown-display');
-
-      dibEl.textContent = '디비디비딥!';
-      dibEl.classList.add('dibidibideep-enter');
-      hintEl.textContent = '표정을 준비하세요!';
-
-      let count = 3;
-      countEl.textContent = count;
-
-      const countdownTimer = setInterval(() => {
-        count--;
-        if (count > 0) {
-          countEl.textContent = count;
-        } else {
-          clearInterval(countdownTimer);
-          clearInterval(expressionInterval);
-          countEl.textContent = '';
-          resolveRound();
-        }
-      }, 1000);
-    }
-
-    // ── 라운드 판정 ────────────────────────────────────────────
-    function resolveRound() {
-      const playerExpr = detectExpression(state.lastLandmarks);
-
-      if (!playerExpr || playerExpr === 'neutral') {
-        document.getElementById('action-hint').textContent = '표정을 인식하지 못했어요! 다시 시도하세요.';
-        document.getElementById('dibidibideep-text').textContent = '';
-        document.getElementById('dibidibideep-text').classList.remove('dibidibideep-enter');
-        document.getElementById('btn-ready').style.display = 'inline-block';
-        return;
-      }
-
-      const aiExpr = EXPRESSIONS[Math.floor(Math.random() * EXPRESSIONS.length)];
-
-      // AI 표정 이미지 전환 (3초 유지)
-      document.getElementById('ai-face-img').src = AI_IMAGES[aiExpr];
-      document.getElementById('ai-expression-badge').textContent  = EXPRESSION_LABEL[aiExpr];
-      document.getElementById('player-expression-badge').textContent = EXPRESSION_LABEL[playerExpr];
-      document.getElementById('dibidibideep-text').classList.remove('dibidibideep-enter');
-
-      showRoundResult(playerExpr === aiExpr);
-    }
-
-    // ── 라운드 결과 표시 (action-area 내부) ───────────────────
-    function showRoundResult(attackerWinsRound) {
-      const resultEl = document.getElementById('round-result');
-      const hintEl   = document.getElementById('action-hint');
-
-      if (attackerWinsRound) {
-        const msg = state.playerRole === 'attacker' ? '😈 공격 성공!' : '😱 잡혔다!';
-        resultEl.textContent  = msg;
-        resultEl.style.color  = '#ff6b6b';
-        state.defenseStreak   = 0;
-        [state.playerRole, state.aiRole] = [state.aiRole, state.playerRole];
-      } else {
-        state.defenseStreak++;
-        const msg = state.playerRole === 'defender'
-          ? `🛡️ 방어 성공! (${state.defenseStreak}/3)`
-          : `🛡️ AI 방어! (${state.defenseStreak}/3)`;
-        resultEl.textContent = msg;
-        resultEl.style.color = '#4ecdc4';
-      }
-
-      resultEl.classList.remove('result-pop');
-      void resultEl.offsetWidth; // reflow for re-trigger
-      resultEl.classList.add('result-pop');
-
-      document.getElementById('dibidibideep-text').textContent = '';
-      hintEl.textContent = '';
-
-      // 3초 후 다음 라운드 or 게임 오버
-      setTimeout(() => {
-        resultEl.textContent = '';
-        resultEl.classList.remove('result-pop');
-
-        // AI 표정 중립으로 복귀
-        document.getElementById('ai-face-img').src = AI_IMAGES.neutral;
-
-        if (state.defenseStreak >= 3) {
-          showGameOver();
-        } else {
-          renderCounterDots(state.defenseStreak);
-          updateRoleUI();
-          document.getElementById('ai-expression-badge').textContent  = EXPRESSION_LABEL.neutral;
-          document.getElementById('action-hint').textContent = '준비되면 버튼을 누르세요';
-          document.getElementById('btn-ready').style.display = 'inline-block';
-        }
-      }, 3000);
-    }
-
-    // ── 게임 오버 ──────────────────────────────────────────────
-    function showGameOver() {
-      const defenderIsPlayer = state.playerRole === 'defender';
-
-      document.getElementById('gameover-emoji').textContent = defenderIsPlayer ? '🎉' : '🤖';
-      document.getElementById('winner-text').textContent =
-        defenderIsPlayer ? `${state.playerName} 승리!` : 'AI 수비자 승리!';
-      document.getElementById('winner-text').style.color =
-        defenderIsPlayer ? '#4ecdc4' : '#ff6b6b';
-      document.getElementById('rounds-text').textContent = `총 ${state.totalRounds}라운드`;
-
-      if (defenderIsPlayer) {
-        const score = calcScore(state.totalRounds);
-        document.getElementById('score-text').textContent = `점수: ${score}점`;
-
-        // 랭킹 저장 (최신 항목 표시용 플래그)
-        const list = loadRanking();
-        list.forEach(e => delete e._latest);
-        saveRanking({ name: state.playerName, score, rounds: state.totalRounds, _latest: true });
-      } else {
-        document.getElementById('score-text').textContent = '';
-      }
-
-      showScene('scene-gameover');
-      renderRanking('gameover-ranking-list', defenderIsPlayer ? state.playerName : null);
-
-      document.getElementById('btn-replay').onclick = () => {
-        showScene('scene-rps');
-        initRpsScene();
+        }, 1100);
       };
+    });
+  }
+
+  // ── AI 이미지 / 표정 맵 ────────────────────────────────────
+  const AI_IMAGES = { neutral:'assets/neutral.jpg', wink_left:'assets/wink_left.jpg', wink_right:'assets/wink_right.jpg', tongue:'assets/tongue.jpg' };
+  const EXPRESSION_LABEL = { neutral:'😐 대기 중', wink_left:'😉 왼쪽 윙크', wink_right:'😉 오른쪽 윙크', tongue:'😛 메롱' };
+  const EXPRESSIONS = ['wink_left', 'wink_right', 'tongue'];
+
+  function updateRoleUI() {
+    const aiIsAttacker = state.aiRole === 'attacker';
+    const playerIsAttacker = state.playerRole === 'attacker';
+
+    document.getElementById('s3-meta').textContent = playerIsAttacker ? 'YOU · 공격자' : 'YOU · 수비자';
+    document.getElementById('s3-call').textContent = '준비…';
+    document.getElementById('s3-call').classList.remove('calling');
+
+    const badge = document.getElementById('role-badge');
+    badge.textContent = playerIsAttacker ? '공격' : '수비';
+    badge.className = 'role-badge' + (playerIsAttacker ? ' attacker' : '');
+
+    document.getElementById('streak-dots').querySelectorAll('.streak-dot').forEach(d => d.classList.remove('filled'));
+    document.getElementById('streak-num').textContent = state.defenseStreak;
+
+    // AI 라벨/프레임
+    const aiLabel = document.getElementById('ai-face-label');
+    aiLabel.textContent = (aiIsAttacker ? '공격자' : '수비자') + ' · AI';
+    aiLabel.className = 'face-col-label' + (aiIsAttacker ? ' is-attacker' : '');
+    const aiFrame = document.getElementById('ai-face-frame');
+    aiFrame.className = 'face-frame' + (aiIsAttacker ? ' is-attacker' : '');
+
+    // 플레이어 라벨/프레임
+    const plLabel = document.getElementById('player-face-label');
+    plLabel.textContent = (playerIsAttacker ? '공격자' : '수비자') + ' · ' + state.playerName;
+    plLabel.className = 'face-col-label' + (playerIsAttacker ? ' is-attacker' : '');
+    const plFrame = document.getElementById('player-face-frame');
+    plFrame.className = 'face-frame' + (playerIsAttacker ? ' is-attacker' : '');
+  }
+
+  function renderStreakDots(streak) {
+    document.getElementById('streak-num').textContent = streak;
+    document.getElementById('streak-dots').querySelectorAll('.streak-dot').forEach((d, i) => {
+      d.className = 'streak-dot' + (i < streak ? ' filled' : '');
+    });
+  }
+
+  // ── 게임 씬 진입 ───────────────────────────────────────────
+  async function startGameScene() {
+    const gameVideo = document.getElementById('webcam-video');
+    if (state.videoEl && state.videoEl !== gameVideo) {
+      state.camera.stop();
+      await startCamera(gameVideo, state.faceMesh);
     }
-  </script>
+    showScene('scene-game');
+    document.getElementById('player-name-label') && (document.getElementById('player-name-label').textContent = state.playerName);
+    updateRoleUI();
+    renderStreakDots(state.defenseStreak);
+    renderRanking('game-ranking-list', null);
+    document.getElementById('ai-face-img').src = AI_IMAGES.neutral;
+    document.getElementById('ai-expr-badge').textContent = EXPRESSION_LABEL.neutral;
+    document.getElementById('player-expr-badge').textContent = EXPRESSION_LABEL.neutral;
+    document.getElementById('action-prompt').textContent = '준비되면 버튼을 누르세요';
+    document.getElementById('countdown-display').textContent = '';
+    document.getElementById('round-result').textContent = '';
+    document.getElementById('round-result').style.color = '';
+    const btnReady = document.getElementById('btn-ready');
+    btnReady.style.display = 'inline-flex';
+    btnReady.onclick = startRound;
+  }
+
+  // ── 라운드 시작 ────────────────────────────────────────────
+  function startRound() {
+    state.totalRounds++;
+    document.getElementById('btn-ready').style.display = 'none';
+    document.getElementById('round-result').textContent = '';
+    document.getElementById('round-result').classList.remove('result-pop');
+
+    const exprInterval = setInterval(() => {
+      const expr = detectExpression(state.lastLandmarks);
+      if (expr) document.getElementById('player-expr-badge').textContent = EXPRESSION_LABEL[expr] || EXPRESSION_LABEL.neutral;
+    }, 200);
+
+    const callEl = document.getElementById('s3-call');
+    const promptEl = document.getElementById('action-prompt');
+    const countEl = document.getElementById('countdown-display');
+
+    callEl.textContent = '디비디비딥!';
+    callEl.classList.add('calling');
+    promptEl.textContent = '표정을 준비하세요!';
+
+    let count = 3;
+    countEl.textContent = count;
+
+    const countdownTimer = setInterval(() => {
+      count--;
+      if (count > 0) {
+        countEl.textContent = count;
+      } else {
+        clearInterval(countdownTimer);
+        clearInterval(exprInterval);
+        countEl.textContent = '';
+        resolveRound();
+      }
+    }, 1000);
+  }
+
+  // ── 라운드 판정 ────────────────────────────────────────────
+  function resolveRound() {
+    const playerExpr = detectExpression(state.lastLandmarks);
+
+    if (!playerExpr || playerExpr === 'neutral') {
+      document.getElementById('action-prompt').textContent = '표정을 인식하지 못했어요! 다시 시도하세요.';
+      document.getElementById('s3-call').textContent = '다시…';
+      document.getElementById('s3-call').classList.remove('calling');
+      document.getElementById('btn-ready').style.display = 'inline-flex';
+      state.totalRounds = Math.max(0, state.totalRounds - 1);
+      return;
+    }
+
+    const aiExpr = EXPRESSIONS[Math.floor(Math.random() * EXPRESSIONS.length)];
+    if (state.roundPhotos.length < 4) state.roundPhotos.push(aiExpr);
+
+    document.getElementById('ai-face-img').src = AI_IMAGES[aiExpr];
+    document.getElementById('ai-expr-badge').textContent = EXPRESSION_LABEL[aiExpr];
+    document.getElementById('player-expr-badge').textContent = EXPRESSION_LABEL[playerExpr];
+    document.getElementById('s3-call').classList.remove('calling');
+
+    showRoundResult(playerExpr === aiExpr);
+  }
+
+  // ── 라운드 결과 표시 ───────────────────────────────────────
+  function showRoundResult(attackerWins) {
+    const resultEl = document.getElementById('round-result');
+    const promptEl = document.getElementById('action-prompt');
+
+    if (attackerWins) {
+      const msg = state.playerRole === 'attacker' ? '😈 공격 성공!' : '😱 잡혔다!';
+      resultEl.textContent = msg;
+      resultEl.style.color = 'var(--accent)';
+      state.defenseStreak = 0;
+      [state.playerRole, state.aiRole] = [state.aiRole, state.playerRole];
+    } else {
+      state.defenseStreak++;
+      const msg = state.playerRole === 'defender'
+        ? `🛡️ 방어 성공! (${state.defenseStreak}/3)`
+        : `🛡️ AI 방어! (${state.defenseStreak}/3)`;
+      resultEl.textContent = msg;
+      resultEl.style.color = '#2EA66F';
+    }
+
+    resultEl.classList.remove('result-pop');
+    void resultEl.offsetWidth;
+    resultEl.classList.add('result-pop');
+    promptEl.textContent = '';
+    document.getElementById('s3-call').textContent = '…';
+
+    setTimeout(() => {
+      resultEl.textContent = '';
+      resultEl.classList.remove('result-pop');
+      document.getElementById('ai-face-img').src = AI_IMAGES.neutral;
+
+      if (state.defenseStreak >= 3) {
+        showGameOver();
+      } else {
+        renderStreakDots(state.defenseStreak);
+        updateRoleUI();
+        document.getElementById('ai-expr-badge').textContent = EXPRESSION_LABEL.neutral;
+        document.getElementById('player-expr-badge').textContent = EXPRESSION_LABEL.neutral;
+        document.getElementById('action-prompt').textContent = '준비되면 버튼을 누르세요';
+        document.getElementById('btn-ready').style.display = 'inline-flex';
+      }
+    }, 3000);
+  }
+
+  // ── 게임 오버 ──────────────────────────────────────────────
+  function showGameOver() {
+    const defenderIsPlayer = state.playerRole === 'defender';
+    const won = defenderIsPlayer;
+
+    document.getElementById('s4-eyebrow').textContent = 'RESULT · ' + (won ? '수비자 승리' : 'AI 수비자 승리');
+    document.getElementById('s4-title').textContent = won ? '내가 챔피언! 🏆' : '아쉽다… 한 번 더?';
+
+    const scoreEl = document.getElementById('s4-score');
+    if (won) {
+      const score = calcScore(state.totalRounds);
+      scoreEl.textContent = `SCORE · ${score}점`;
+      scoreEl.style.display = 'inline-block';
+      const list = loadRanking();
+      list.forEach(e => delete e._latest);
+      saveRanking({ name: state.playerName, score, rounds: state.totalRounds, _latest: true });
+    } else {
+      scoreEl.style.display = 'none';
+    }
+
+    document.getElementById('s4-sub').textContent = `${state.playerName} · 총 ${state.totalRounds}라운드`;
+
+    // 인생네컷 포토 스트립
+    const photos = [...state.roundPhotos];
+    while (photos.length < 4) photos.push('neutral');
+    const stripEl = document.getElementById('photo-strip');
+    stripEl.innerHTML = photos.slice(0, 4).map((expr, i) => `
+      <div class="strip-photo">
+        <span class="strip-stamp">#${String(i+1).padStart(2,'0')}</span>
+        <img src="assets/${expr}.jpg" alt="${expr}">
+      </div>
+    `).join('');
+
+    showScene('scene-gameover');
+    renderRanking('gameover-ranking-list', won ? state.playerName : null);
+
+    document.getElementById('btn-replay').onclick = () => {
+      showScene('scene-rps');
+      initRpsScene();
+    };
+  }
+</script>
 </body>
 </html>
