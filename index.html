@@ -320,16 +320,15 @@
     }
     .face-col-label.is-attacker { color: var(--accent); }
     .face-frame {
-      width: 148px; height: 148px;
-      border-radius: 12px; overflow: hidden;
-      border: 1.5px solid rgba(255,255,255,0.15);
+      width: 220px; height: 220px;
+      border-radius: 14px; overflow: hidden;
+      border: 2px solid var(--accent);
+      box-shadow: 0 0 24px rgba(255,77,46,0.35);
     }
-    .face-frame.is-attacker { border-color: var(--accent); box-shadow: 0 0 18px rgba(255,77,46,0.35); }
-    .face-frame img, #webcam-video {
-      width: 148px; height: 148px;
-      object-fit: cover; display: block; border-radius: 10px;
+    .face-frame img {
+      width: 220px; height: 220px;
+      object-fit: cover; display: block; border-radius: 12px;
     }
-    #webcam-video { transform: scaleX(-1); }
     .expr-badge {
       padding: 3px 10px;
       background: rgba(255,255,255,0.08);
@@ -338,12 +337,15 @@
       font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.65);
       letter-spacing: 0.04em;
     }
-    .vs-label {
-      position: absolute; top: 50%; left: 50%;
-      transform: translate(-50%,-50%);
-      font-size: 14px; font-weight: 900; color: var(--accent);
-      background: var(--ink); padding: 4px 8px; border-radius: 999px;
-      border: 1.5px solid rgba(255,77,46,0.5); z-index: 10;
+    /* 플레이어 표정 표시 (액션 영역) */
+    .player-expr-row {
+      display: flex; align-items: center; gap: 8px;
+      justify-content: center;
+      font-size: 12px; color: var(--ink-soft);
+    }
+    .player-expr-row .label {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 9px; letter-spacing: 0.15em; color: var(--ink-mute); font-weight: 700;
     }
     /* Action area */
     .action-area {
@@ -600,31 +602,22 @@
           <span class="live-dot">FACE.AI · LIVE</span>
           <span id="faces-panel-right">OPPONENT · 디비봇</span>
         </div>
-        <div class="faces-stage">
+        <!-- 웹캠은 감지 전용, 화면에 표시 안 함 -->
+        <video id="webcam-video" style="display:none" playsinline autoplay muted></video>
+        <div class="faces-stage" style="justify-content:center;">
           <!-- HUD 코너 -->
           <div class="hud hud-tl"></div>
           <div class="hud hud-tr"></div>
           <div class="hud hud-bl"></div>
           <div class="hud hud-br"></div>
-          <!-- VS 중앙 -->
-          <div class="vs-label">VS</div>
 
-          <!-- AI 얼굴 -->
-          <div class="face-col">
+          <!-- AI 얼굴 (중앙) -->
+          <div class="face-col" style="flex:unset;">
             <span id="ai-face-label" class="face-col-label is-attacker">공격자 · AI</span>
-            <div id="ai-face-frame" class="face-frame is-attacker">
+            <div id="ai-face-frame" class="face-frame">
               <img id="ai-face-img" src="assets/neutral.jpg" alt="AI">
             </div>
             <span id="ai-expr-badge" class="expr-badge">😐 대기 중</span>
-          </div>
-
-          <!-- 플레이어 웹캠 -->
-          <div class="face-col">
-            <span id="player-face-label" class="face-col-label">수비자 · 나</span>
-            <div id="player-face-frame" class="face-frame">
-              <video id="webcam-video" playsinline autoplay muted></video>
-            </div>
-            <span id="player-expr-badge" class="expr-badge">😐 대기 중</span>
           </div>
         </div>
       </div>
@@ -635,6 +628,10 @@
         <div class="action-body">
           <div id="countdown-display" class="countdown-big"></div>
           <div id="round-result" class="round-result"></div>
+          <div class="player-expr-row">
+            <span class="label">MY EXPRESSION</span>
+            <span id="player-expr-badge" class="expr-badge">😐 대기 중</span>
+          </div>
           <button id="btn-ready" class="btn-primary">준비!</button>
         </div>
       </div>
@@ -883,7 +880,6 @@
   const EXPRESSIONS = ['wink_left', 'wink_right', 'tongue'];
 
   function updateRoleUI() {
-    const aiIsAttacker = state.aiRole === 'attacker';
     const playerIsAttacker = state.playerRole === 'attacker';
 
     document.getElementById('s3-meta').textContent = playerIsAttacker ? 'YOU · 공격자' : 'YOU · 수비자';
@@ -894,22 +890,7 @@
     badge.textContent = playerIsAttacker ? '공격' : '수비';
     badge.className = 'role-badge' + (playerIsAttacker ? ' attacker' : '');
 
-    document.getElementById('streak-dots').querySelectorAll('.streak-dot').forEach(d => d.classList.remove('filled'));
     document.getElementById('streak-num').textContent = state.defenseStreak;
-
-    // AI 라벨/프레임
-    const aiLabel = document.getElementById('ai-face-label');
-    aiLabel.textContent = (aiIsAttacker ? '공격자' : '수비자') + ' · AI';
-    aiLabel.className = 'face-col-label' + (aiIsAttacker ? ' is-attacker' : '');
-    const aiFrame = document.getElementById('ai-face-frame');
-    aiFrame.className = 'face-frame' + (aiIsAttacker ? ' is-attacker' : '');
-
-    // 플레이어 라벨/프레임
-    const plLabel = document.getElementById('player-face-label');
-    plLabel.textContent = (playerIsAttacker ? '공격자' : '수비자') + ' · ' + state.playerName;
-    plLabel.className = 'face-col-label' + (playerIsAttacker ? ' is-attacker' : '');
-    const plFrame = document.getElementById('player-face-frame');
-    plFrame.className = 'face-frame' + (playerIsAttacker ? ' is-attacker' : '');
   }
 
   function renderStreakDots(streak) {
