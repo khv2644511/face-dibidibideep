@@ -241,9 +241,13 @@
       background: var(--ink); color: var(--paper);
       border-radius: 14px;
       font-size: 11px; font-weight: 800; letter-spacing: 0.08em;
-      transition: font-size 100ms ease;
+      transition: background 150ms ease, font-size 100ms ease;
     }
-    .expr-pad-cell.center.counting { font-size: 28px; font-family: "JetBrains Mono", monospace; color: var(--accent); background: var(--paper); border: 1.5px solid var(--ink); }
+    /* 콜 시퀀스 중 center cell 스타일 */
+    .expr-pad-cell.center.calling {
+      background: var(--paper); border: 1.5px solid var(--ink);
+      font-size: 17px; font-weight: 900; letter-spacing: -0.02em;
+    }
     .expr-btn {
       background: var(--paper);
       border: 1.5px solid var(--ink); border-radius: 14px;
@@ -328,11 +332,23 @@
       .expr-pad-label { font-size: 9px; }
       .btn-primary, .btn-ghost { padding: 14px 20px; font-size: 15px; }
 
-      /* Game over */
+      /* Game over — 랭킹 숨기고 인생네컷 세로 배치 */
       #scene-gameover { padding: 28px 20px 24px; }
       .s4-title { font-size: 36px; }
-      .photo-strip { padding: 10px 10px 38px; gap: 6px; }
-      .strip-photo { width: 64px; }
+      .gameover-ranking { display: none; }
+
+      /* 포토스트립 세로 배치 */
+      .photo-strip {
+        flex-direction: column !important;
+        width: 160px !important;
+        padding: 10px 10px 40px;
+        gap: 6px;
+        transform: rotate(-2deg);
+      }
+      .photo-strip .strip-photo {
+        width: 100%;
+        aspect-ratio: 4/3;
+      }
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
@@ -450,12 +466,12 @@
       <!-- 액션 영역 (표정 패드 D-pad 스타일) -->
       <div class="action-area">
         <div id="action-prompt" class="action-prompt">준비되면 버튼을 누르세요</div>
-        <!-- 표정 패드: 위=메롱 / 좌=윙크왼쪽 / 중앙=닉네임·카운트다운 / 우=윙크오른쪽 -->
+        <!-- 표정 패드: 위=기본표정 / 좌=윙크왼쪽 / 중앙=닉네임·콜 / 우=윙크오른쪽 / 아래=메롱 -->
         <div class="expr-pad">
           <div class="expr-pad-cell spacer"></div>
-          <div class="expr-pad-cell expr-btn" id="expad-tongue">
-            <span class="expr-glyph">😛</span>
-            <span class="expr-pad-label">메롱</span>
+          <div class="expr-pad-cell expr-btn" id="expad-neutral">
+            <span class="expr-glyph">😐</span>
+            <span class="expr-pad-label">기본표정</span>
           </div>
           <div class="expr-pad-cell spacer"></div>
           <div class="expr-pad-cell expr-btn" id="expad-wink_left">
@@ -468,7 +484,10 @@
             <span class="expr-pad-label">오른쪽윙크</span>
           </div>
           <div class="expr-pad-cell spacer"></div>
-          <div class="expr-pad-cell spacer"></div>
+          <div class="expr-pad-cell expr-btn" id="expad-tongue">
+            <span class="expr-glyph">😛</span>
+            <span class="expr-pad-label">메롱</span>
+          </div>
           <div class="expr-pad-cell spacer"></div>
         </div>
         <!-- 호환성용 숨김 요소 -->
@@ -628,8 +647,10 @@
 
   // ── AI 이미지 / 표정 맵 ────────────────────────────────────
   const AI_IMAGES = { neutral:'assets/neutral.jpg', wink_left:'assets/wink_left.jpg', wink_right:'assets/wink_right.jpg', tongue:'assets/tongue.jpg' };
-  const EXPRESSION_LABEL = { neutral:'😐 대기 중', wink_left:'😉 왼쪽 윙크', wink_right:'😉 오른쪽 윙크', tongue:'😛 메롱' };
-  const EXPRESSIONS = ['wink_left','wink_right','tongue'];
+  const EXPRESSION_LABEL = { neutral:'😐 기본 표정', wink_left:'😉 왼쪽 윙크', wink_right:'😉 오른쪽 윙크', tongue:'😛 메롱' };
+  // 4개 표정 — neutral도 유효한 게임 표정
+  const EXPRESSIONS = ['wink_left','wink_right','tongue','neutral'];
+  const ALL_EXPRS   = ['neutral','wink_left','wink_right','tongue'];
 
   // ── 유저 표정 사진 캡처 ────────────────────────────────────
   function capturePlayerPhoto() {
@@ -698,7 +719,7 @@
       centerEl.textContent = state.playerName.slice(0, 4) || 'YOU';
       centerEl.className = 'expr-pad-cell center';
     }
-    ['tongue','wink_left','wink_right'].forEach(e => {
+    ALL_EXPRS.forEach(e => {
       const el = document.getElementById('expad-' + e);
       if (el) el.classList.remove('active');
     });
@@ -717,65 +738,66 @@
     state.totalRounds++;
     document.getElementById('btn-ready').style.display = 'none';
 
-    const callEl    = document.getElementById('s3-call');
-    const promptEl  = document.getElementById('action-prompt');
-    const centerEl  = document.getElementById('expr-pad-center');
+    const callEl   = document.getElementById('s3-call');
+    const promptEl = document.getElementById('action-prompt');
+    const centerEl = document.getElementById('expr-pad-center');
 
-    promptEl.innerHTML = '표정을 준비하세요!';
+    promptEl.innerHTML = '<strong>딥!</strong> 순간 표정을 완성하세요!';
     promptEl.className = 'action-prompt';
 
-    // 표정 실시간 감지 → 패드 하이라이트
+    // 패드에 콜 단어를 표시하는 헬퍼
+    const setCall = (html, cls) => {
+      callEl.innerHTML = html;
+      if (centerEl) {
+        centerEl.innerHTML = html;
+        centerEl.className = 'expr-pad-cell center calling ' + (cls || '');
+      }
+    };
+
+    // 표정 실시간 감지 → 패드 하이라이트 (중앙은 콜 텍스트로 덮어씀)
     const exprInterval = setInterval(() => {
       const expr = detectExpression(state.lastLandmarks);
-      ['tongue','wink_left','wink_right'].forEach(e => {
+      ALL_EXPRS.forEach(e => {
         const el = document.getElementById('expad-' + e);
         if (el) el.classList.toggle('active', expr === e);
       });
     }, 180);
 
-    // 디비(주황) → 디비(파랑) → 딥!(레드) 시퀀스
-    callEl.innerHTML = '<span class="call-dibi-1">디비</span>';
+    // 디비(주황) → 디비(파랑) → 딥!(레드) → 판정
+    setCall('<span class="call-dibi-1">디비</span>');
+
     setTimeout(() => {
-      callEl.innerHTML = '<span class="call-dibi">디비</span>';
+      setCall('<span class="call-dibi">디비</span>');
     }, 450);
+
     setTimeout(() => {
-      callEl.innerHTML = '<span class="call-dip">딥!</span>';
-      // 카운트다운 → center cell에 표시
-      let count = 3;
-      if (centerEl) {
-        centerEl.textContent = count;
-        centerEl.className = 'expr-pad-cell center counting';
-      }
-      const timer = setInterval(() => {
-        count--;
-        if (count > 0) {
-          if (centerEl) centerEl.textContent = count;
-        } else {
-          clearInterval(timer);
-          clearInterval(exprInterval);
-          // 카운트다운 끝: 패드 초기화
-          if (centerEl) {
-            centerEl.className = 'expr-pad-cell center';
-            centerEl.textContent = state.playerName.slice(0,4) || 'YOU';
-          }
-          ['tongue','wink_left','wink_right'].forEach(e => {
-            const el = document.getElementById('expad-' + e);
-            if (el) el.classList.remove('active');
-          });
-          resolveRound();
-        }
-      }, 1000);
+      setCall('<span class="call-dip">딥!</span>');
     }, 900);
+
+    // 딥! 400ms 후 판정 (총 1300ms)
+    setTimeout(() => {
+      clearInterval(exprInterval);
+      // center 원복
+      if (centerEl) {
+        centerEl.innerHTML = state.playerName.slice(0,4) || 'YOU';
+        centerEl.className = 'expr-pad-cell center';
+      }
+      ALL_EXPRS.forEach(e => {
+        const el = document.getElementById('expad-' + e);
+        if (el) el.classList.remove('active');
+      });
+      resolveRound();
+    }, 1300);
   }
 
   // ── 라운드 판정 ────────────────────────────────────────────
   function resolveRound() {
     const playerExpr = detectExpression(state.lastLandmarks);
 
-    // 표정 미감지 → 재시도
-    if (!playerExpr || playerExpr === 'neutral') {
+    // 얼굴 미감지일 때만 재시도 (neutral은 유효 표정)
+    if (!playerExpr) {
       const promptEl = document.getElementById('action-prompt');
-      promptEl.innerHTML = '표정을 인식하지 못했어요! <strong>다시 시도하세요</strong>';
+      promptEl.innerHTML = '얼굴을 인식하지 못했어요! <strong>다시 시도하세요</strong>';
       promptEl.className = 'action-prompt';
       document.getElementById('s3-call').textContent = '다시…';
       document.getElementById('btn-ready').style.display = 'inline-flex';
@@ -834,6 +856,7 @@
         showGameOver(true);
       } else {
         renderStreakDots(state.defenseStreak);
+        document.getElementById('ai-face-img').src = AI_IMAGES.neutral;
         document.getElementById('ai-expr-badge').textContent = EXPRESSION_LABEL.neutral;
         promptEl.innerHTML = '준비되면 버튼을 누르세요';
         promptEl.className = 'action-prompt';
