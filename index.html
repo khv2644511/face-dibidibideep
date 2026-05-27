@@ -21,6 +21,7 @@
       --paper: #FFFBF2;
       --call-dibi-1: #FF9E00; /* 첫 번째 "디비" — 주황 */
       --call-dibi:   #2E5BFF; /* 두 번째 "디비" — 파랑 */
+      --cool:        #2E5BFF; /* 레이아웃용 쿨 블루 */
     }
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
     body {
@@ -191,7 +192,7 @@
     /* AI face */
     .ai-face-col { display: flex; flex-direction: column; align-items: center; gap: 8px; }
     .ai-face-label { font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: 0.2em; color: var(--accent); font-weight: 700; }
-    .face-frame { width: 200px; height: 200px; border-radius: 14px; overflow: hidden; border: 2px solid var(--accent); box-shadow: 0 0 24px rgba(255,77,46,0.35); }
+    .face-frame { width: 260px; height: 260px; border-radius: 14px; overflow: hidden; border: 2px solid var(--accent); box-shadow: 0 0 24px rgba(255,77,46,0.35); }
     .face-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .expr-badge { padding: 3px 10px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 999px; font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.65); letter-spacing: 0.04em; }
 
@@ -284,17 +285,114 @@
     .s4-title { font-family: "Gaegu", cursive; font-size: 42px; font-weight: 700; margin-top: 4px; }
     .s4-score { font-family: "JetBrains Mono", monospace; font-size: 17px; font-weight: 700; color: var(--accent); padding: 8px 22px; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--accent-soft); box-shadow: 2px 2px 0 var(--ink); }
     .s4-sub { font-size: 13px; color: var(--ink-soft); }
-    /* 인생네컷 strip */
-    .photo-strip { display: flex; gap: 8px; background: var(--ink); border-radius: 8px; padding: 14px 14px 44px; box-shadow: 5px 7px 0 var(--accent), 5px 7px 0 1.5px var(--ink); position: relative; transform: rotate(-1.5deg); margin: 4px auto; justify-content: center; }
-    .photo-strip::after { content: '페이스 디비디비딥 · 2026'; position: absolute; bottom: 14px; left: 0; right: 0; text-align: center; color: var(--paper); font-family: "Gaegu", cursive; font-size: 12px; }
-    /* 사진 수에 따라 너비 자동 조정 */
-    .photo-strip:has(.strip-photo:nth-child(1):last-child) { width: 120px; }
-    .photo-strip:has(.strip-photo:nth-child(2):last-child) { width: 204px; }
-    .photo-strip:has(.strip-photo:nth-child(3):last-child) { width: 288px; }
-    .photo-strip:has(.strip-photo:nth-child(4):last-child) { width: 372px; }
-    .strip-photo { width: 76px; aspect-ratio: 3/4; background: var(--bg-2); border-radius: 4px; overflow: hidden; position: relative; flex-shrink: 0; }
-    .strip-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .strip-stamp { position: absolute; top: 4px; left: 4px; font-family: "JetBrains Mono", monospace; font-size: 6px; color: rgba(255,255,255,0.6); z-index: 2; }
+    /* 포토 결과 영역 래퍼 */
+    .photo-result-area { width: 100%; display: flex; align-items: center; justify-content: center; min-height: 280px; padding: 4px 0; }
+
+    /* ── LAYOUT 1: BIG POLAROID ───────────────────── */
+    .layout-one { width: 100%; display: flex; align-items: center; justify-content: center; padding: 20px 40px; }
+    .one-stage { position: relative; flex-shrink: 0; }
+    .one-polaroid {
+      background: var(--paper); border: 1.5px solid var(--ink); border-radius: 6px;
+      padding: 14px 14px 20px; box-shadow: 10px 12px 0 var(--ink);
+      transform: rotate(-3deg); position: relative; width: 240px;
+    }
+    .one-photo { aspect-ratio: 1/1; background: var(--ink); border-radius: 3px; position: relative; overflow: hidden; }
+    .one-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .one-photo-glow { position: absolute; inset: 0; background: radial-gradient(circle at 50% 40%, rgba(255,235,180,0.15), transparent 60%); pointer-events: none; }
+    .one-caption { padding: 12px 4px 0; display: flex; flex-direction: column; gap: 6px; }
+    .one-caption-line { font-size: 17px; font-weight: 700; color: var(--ink); line-height: 1.2; text-align: center; }
+    .one-caption-meta { display: flex; justify-content: space-between; font-size: 10px; color: var(--ink-mute); align-items: center; }
+    .one-stamp { padding: 3px 8px; background: var(--accent); color: var(--paper); border-radius: 3px; font-family: "JetBrains Mono", monospace; font-size: 9px; font-weight: 800; letter-spacing: 0.15em; transform: rotate(4deg); display: inline-block; }
+    .one-tape { position: absolute; width: 80px; height: 24px; background: rgba(255,224,102,0.75); border: 1px dashed rgba(0,0,0,0.18); z-index: 3; }
+    .one-tape-tl { top: -10px; left: -20px; transform: rotate(-18deg); }
+    .one-tape-tr { top: -10px; right: -20px; transform: rotate(16deg); }
+    .one-deco { position: absolute; font-size: 28px; color: var(--accent); }
+    .one-deco-star { top: -36px; right: -64px; transform: rotate(12deg); animation: spinSlow 6s linear infinite; }
+    .one-deco-sparkle { bottom: 20px; left: -56px; transform: rotate(-12deg); font-size: 22px; opacity: 0.6; }
+    .one-deco-dot { bottom: -20px; right: -32px; width: 50px; height: 50px; border-radius: 50%; background: var(--cool); border: 1.5px solid var(--ink); opacity: 0.5; font-size: 0; }
+    @keyframes spinSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    /* ── LAYOUT 2: DIPTYCH ─────────────────────────── */
+    .layout-two { width: 100%; display: flex; align-items: center; justify-content: center; padding: 20px 0; }
+    .two-paper {
+      background: var(--paper); border: 1.5px solid var(--ink); border-radius: 8px;
+      padding: 18px 22px 14px; box-shadow: 8px 8px 0 var(--ink);
+      transform: rotate(1.5deg); width: 380px;
+    }
+    .two-paper-eyebrow { text-align: center; font-size: 10px; letter-spacing: 0.3em; color: var(--ink-mute); font-weight: 700; margin-bottom: 14px; }
+    .two-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .two-card { background: var(--bg); border: 1.2px solid var(--ink); padding: 10px 10px 14px; border-radius: 4px; position: relative; }
+    .two-card-0 { transform: rotate(-4deg); }
+    .two-card-1 { transform: rotate(3deg); margin-top: 12px; }
+    .two-tape { position: absolute; top: -10px; left: 50%; transform: translateX(-50%) rotate(-2deg); width: 50px; height: 18px; background: rgba(46,91,255,0.18); border: 1px solid rgba(46,91,255,0.4); }
+    .two-photo { aspect-ratio: 4/5; background: var(--ink); border-radius: 2px; overflow: hidden; }
+    .two-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .two-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 10px; color: var(--ink-soft); font-weight: 700; font-family: "JetBrains Mono", monospace; }
+    .two-footer { margin-top: 18px; text-align: center; position: relative; padding-top: 10px; }
+    .two-footer-text { font-size: 18px; color: var(--ink); }
+    .two-footer-line { position: absolute; top: 0; left: 0; right: 0; height: 1px; background: var(--line); }
+
+    /* ── LAYOUT 3: TRIPTYCH FILM STRIP ─────────────── */
+    .layout-three { display: flex; align-items: center; justify-content: center; gap: 24px; width: 100%; padding: 20px 0; }
+    .three-strip {
+      background: var(--ink); color: var(--paper); border-radius: 4px;
+      padding: 16px 14px; display: flex; flex-direction: column; gap: 10px;
+      width: 210px; box-shadow: 8px 10px 0 var(--accent); position: relative; flex-shrink: 0;
+    }
+    .three-header { padding-bottom: 8px; position: relative; }
+    .three-header-name { font-size: 17px; color: var(--accent); }
+    .three-header-title { font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 800; letter-spacing: 0.2em; }
+    .three-header-line { position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: rgba(255,255,255,0.2); }
+    .three-cell { display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px dashed rgba(255,255,255,0.12); }
+    .three-num { font-family: "JetBrains Mono", monospace; font-size: 10px; color: rgba(255,255,255,0.5); width: 18px; flex-shrink: 0; }
+    .three-photo { flex: 1; aspect-ratio: 16/11; background: #2a2520; border-radius: 2px; overflow: hidden; position: relative; }
+    .three-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .three-perforations { position: absolute; top: 0; bottom: 0; right: 0; width: 6px; background-image: radial-gradient(circle, rgba(0,0,0,0.5) 1.5px, transparent 2px); background-size: 6px 8px; background-repeat: repeat-y; pointer-events: none; }
+    .three-cell-meta { display: flex; flex-direction: column; gap: 3px; align-items: center; font-family: "JetBrains Mono", monospace; font-size: 8px; color: rgba(255,255,255,0.6); }
+    .three-cell-bar { width: 12px; height: 1px; background: rgba(255,255,255,0.3); }
+    .three-footer { display: flex; justify-content: space-between; padding-top: 6px; margin-top: 4px; font-family: "JetBrains Mono", monospace; font-size: 9px; color: rgba(255,255,255,0.5); border-top: 1px solid rgba(255,255,255,0.1); }
+    .three-side { max-width: 180px; }
+    .three-side-eyebrow { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.25em; color: var(--ink-mute); font-weight: 700; margin-bottom: 10px; }
+    .three-side-text { font-size: 13px; line-height: 1.55; color: var(--ink-soft); }
+    .three-side-cta { font-size: 17px; color: var(--accent); margin-top: 16px; cursor: pointer; }
+
+    /* ── LAYOUT 4: CLASSIC 4-CUT FILMSTRIP ──────────── */
+    .layout-four { width: 100%; display: flex; align-items: center; justify-content: center; position: relative; padding: 20px 60px; }
+    .four-strip {
+      background: var(--ink); color: var(--paper); border-radius: 6px;
+      padding: 10px 10px 14px; display: flex; flex-direction: column; gap: 5px;
+      width: 140px; box-shadow: 8px 10px 0 var(--accent), 8px 10px 0 1.5px var(--ink);
+      transform: rotate(-3deg); position: relative; z-index: 1; flex-shrink: 0;
+    }
+    .four-strip-head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 4px; border-bottom: 1px dashed rgba(255,255,255,0.2); }
+    .four-strip-logo { font-size: 9px; font-weight: 800; letter-spacing: -0.01em; }
+    .four-strip-date { font-family: "JetBrains Mono", monospace; font-size: 7px; color: rgba(255,255,255,0.5); }
+    .four-cell { position: relative; }
+    .four-photo { aspect-ratio: 16/10; background: #2a2520; border-radius: 2px; overflow: hidden; position: relative; }
+    .four-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .four-stamp { position: absolute; top: 4px; left: 4px; font-family: "JetBrains Mono", monospace; font-size: 8px; color: rgba(255,255,255,0.7); background: rgba(0,0,0,0.4); padding: 1px 4px; border-radius: 2px; z-index: 2; }
+    .four-strip-foot { text-align: center; color: var(--paper); font-size: 13px; padding-top: 4px; }
+    .four-sticker { position: absolute; border: 1.5px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); z-index: 2; }
+    .four-sticker-1 {
+      background: var(--accent); color: var(--paper); border-radius: 50%;
+      width: 68px; height: 68px; display: flex; align-items: center; justify-content: center;
+      text-align: center; font-family: "JetBrains Mono", monospace; font-size: 10px;
+      font-weight: 800; letter-spacing: 0.05em; line-height: 1.2;
+      top: 10%; right: 8%; transform: rotate(14deg);
+    }
+    .four-sticker-2 {
+      background: #FFE066; border-radius: 8px; padding: 6px 12px;
+      bottom: 18%; left: 8%; transform: rotate(-10deg);
+    }
+    .four-sticker-2 .hand { font-size: 20px; }
+    .four-confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+    .confetti-piece { position: absolute; top: -10px; width: 8px; height: 12px; background: var(--accent); animation: confettiFall 4s linear infinite; animation-delay: calc(var(--i, 0) * -0.4s); }
+    .confetti-0 { background: var(--accent); }
+    .confetti-1 { background: #FFE066; }
+    .confetti-2 { background: var(--cool); border-radius: 50%; }
+    .confetti-3 { background: #2EA66F; }
+    @keyframes confettiFall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(500px) rotate(720deg); opacity: 0; } }
+
     .gameover-ranking { width: 100%; max-width: 400px; border: 1.5px solid var(--ink); border-radius: 14px; padding: 16px; background: var(--paper); box-shadow: 3px 3px 0 var(--ink); }
     .gameover-ranking-title { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 0.25em; color: var(--ink-mute); font-weight: 700; text-align: center; margin-bottom: 12px; }
     .s4-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
@@ -391,7 +489,7 @@
 
       /* Face panel */
       .faces-panel { min-height: 260px; }
-      .face-frame { width: 160px; height: 160px; }
+      .face-frame { width: 210px; height: 210px; }
 
       /* Action area */
       .expr-pad { grid-template-rows: repeat(3, 54px); }
@@ -404,18 +502,17 @@
       .s4-title { font-size: 36px; }
       .gameover-ranking { display: none; }
 
-      /* 포토스트립 세로 배치 */
-      .photo-strip {
-        flex-direction: column !important;
-        width: 160px !important;
-        padding: 10px 10px 40px;
-        gap: 6px;
-        transform: rotate(-2deg);
-      }
-      .photo-strip .strip-photo {
-        width: 100%;
-        aspect-ratio: 4/3;
-      }
+      /* 모바일: 레이아웃 축소 */
+      .one-polaroid { width: 200px; }
+      .two-paper { width: 300px; transform: rotate(0deg); }
+      .two-grid { gap: 12px; }
+      .three-strip { width: 180px; }
+      .three-side { max-width: 140px; }
+      .three-side-cta { display: none; }
+      .four-strip { width: 120px; }
+      .four-sticker-1 { width: 56px; height: 56px; font-size: 9px; right: 4%; }
+      .four-sticker-2 { left: 4%; font-size: 14px; }
+      .layout-four { padding: 20px 20px; }
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
@@ -468,15 +565,6 @@
   <div id="scene-game" class="scene">
     <div class="game-main">
 
-      <!-- 헤더: 역할 + 콜 텍스트 + 배지 -->
-      <div class="s3-header">
-        <div>
-          <div class="s3-meta" id="s3-meta">YOU · 수비자</div>
-          <div class="s3-call" id="s3-call">준비…</div>
-        </div>
-        <div class="role-badge" id="role-badge">수비</div>
-      </div>
-
       <!-- Defense Streak (4칸) -->
       <div class="streak-bar">
         <div class="streak-row">
@@ -495,7 +583,7 @@
       <div class="faces-panel">
         <div class="faces-panel-head">
           <span class="live-dot">FACE.AI · LIVE</span>
-          <span style="opacity:0.6">OPPONENT · 디비봇</span>
+          <span style="opacity:0.6">OPPONENT · 병재</span>
         </div>
         <!-- 웹캠: 표정 감지 전용, 화면 미표시 -->
         <video id="webcam-video" style="display:none" playsinline autoplay muted></video>
@@ -511,7 +599,6 @@
             <div class="face-frame">
               <img id="ai-face-img" src="assets/neutral.jpg" alt="AI">
             </div>
-            <span id="ai-expr-badge" class="expr-badge">😐 대기 중</span>
           </div>
 
           <!-- 미니 포토 스트립 (우상단) -->
@@ -576,7 +663,7 @@
     <div id="s4-title" class="s4-title">내가 챔피언! 🏆</div>
     <div id="s4-score" class="s4-score" style="display:none"></div>
     <div id="s4-sub" class="s4-sub"></div>
-    <div class="photo-strip" id="photo-strip"></div>
+    <div id="photo-result-area" class="photo-result-area"></div>
     <div class="gameover-ranking">
       <div class="gameover-ranking-title">🏆 RANKING</div>
       <div id="gameover-ranking-list" class="ranking-list"></div>
@@ -745,7 +832,7 @@
   function capturePlayerPhoto() {
     const video = document.getElementById('webcam-video');
     if (!video || video.readyState < 2) return null;
-    const size = 160;
+    const size = 320;
     const canvas = document.createElement('canvas');
     canvas.width = size; canvas.height = size;
     const ctx = canvas.getContext('2d');
@@ -793,14 +880,9 @@
     document.getElementById('mini-count').textContent = '0/4';
 
     showScene('scene-game');
-    document.getElementById('s3-meta').textContent = 'YOU · 수비자';
-    document.getElementById('role-badge').textContent = '수비';
-    document.getElementById('role-badge').className = 'role-badge';
     renderStreakDots(0);
     renderRanking('game-ranking-list', null);
     document.getElementById('ai-face-img').src = AI_IMAGES.neutral;
-    document.getElementById('ai-expr-badge').textContent = EXPRESSION_LABEL.neutral;
-    document.getElementById('s3-call').textContent = '준비…';
 
     // 표정 패드 초기화
     const centerEl = document.getElementById('expr-pad-center');
@@ -818,16 +900,15 @@
     promptEl.className = 'action-prompt';
 
     const btnReady = document.getElementById('btn-ready');
-    btnReady.style.display = 'inline-flex';
+    btnReady.style.visibility = 'visible';
     btnReady.onclick = startRound;
   }
 
   // ── 라운드 시작 ────────────────────────────────────────────
   function startRound() {
     state.totalRounds++;
-    document.getElementById('btn-ready').style.display = 'none';
+    document.getElementById('btn-ready').style.visibility = 'hidden';
 
-    const callEl   = document.getElementById('s3-call');
     const promptEl = document.getElementById('action-prompt');
     const centerEl = document.getElementById('expr-pad-center');
 
@@ -836,7 +917,6 @@
 
     // 패드에 콜 단어를 표시하는 헬퍼
     const setCall = (html, cls) => {
-      callEl.innerHTML = html;
       if (centerEl) {
         centerEl.innerHTML = html;
         centerEl.className = 'expr-pad-cell center calling ' + (cls || '');
@@ -866,15 +946,11 @@
     // 딥! 400ms 후 판정 (총 1300ms)
     setTimeout(() => {
       clearInterval(exprInterval);
-      // center 원복
+      // center만 원복 (expad active는 마지막 선택 표정 그대로 유지)
       if (centerEl) {
         centerEl.innerHTML = state.playerName.slice(0,4) || 'YOU';
         centerEl.className = 'expr-pad-cell center';
       }
-      ALL_EXPRS.forEach(e => {
-        const el = document.getElementById('expad-' + e);
-        if (el) el.classList.remove('active');
-      });
       resolveRound();
     }, 1300);
   }
@@ -888,8 +964,7 @@
       const promptEl = document.getElementById('action-prompt');
       promptEl.innerHTML = '얼굴을 인식하지 못했어요! <strong>다시 시도하세요</strong>';
       promptEl.className = 'action-prompt';
-      document.getElementById('s3-call').textContent = '다시…';
-      document.getElementById('btn-ready').style.display = 'inline-flex';
+      document.getElementById('btn-ready').style.visibility = 'visible';
       state.totalRounds = Math.max(0, state.totalRounds - 1);
       return;
     }
@@ -908,7 +983,6 @@
     }
 
     document.getElementById('ai-face-img').src = AI_IMAGES[aiExpr];
-    document.getElementById('ai-expr-badge').textContent = EXPRESSION_LABEL[aiExpr];
 
     const caught = (playerExpr === aiExpr);
     showRoundResult(!caught, aiExpr); // true = 방어 성공
@@ -923,14 +997,10 @@
       state.defenseStreak++;
       promptEl.innerHTML = `🛡️ <strong>방어 성공!</strong> (${state.defenseStreak}/${MAX_ROUNDS})`;
       promptEl.className = 'action-prompt success';
-      if (centerEl) centerEl.textContent = '🛡️';
     } else {
       promptEl.innerHTML = `😱 <strong>잡혔다!</strong> AI: ${EXPRESSION_LABEL[aiExpr] || ''}`;
       promptEl.className = 'action-prompt fail';
-      if (centerEl) centerEl.textContent = '😱';
     }
-    document.getElementById('s3-call').textContent = '…';
-
     const delay = defenderWon ? 2200 : 1600; // 실패는 좀 빠르게 결과로
     setTimeout(() => {
       document.getElementById('ai-face-img').src = AI_IMAGES.neutral;
@@ -946,13 +1016,137 @@
       } else {
         renderStreakDots(state.defenseStreak);
         document.getElementById('ai-face-img').src = AI_IMAGES.neutral;
-        document.getElementById('ai-expr-badge').textContent = EXPRESSION_LABEL.neutral;
         promptEl.innerHTML = '준비되면 버튼을 누르세요';
         promptEl.className = 'action-prompt';
-        document.getElementById('s3-call').textContent = '준비…';
-        document.getElementById('btn-ready').style.display = 'inline-flex';
+        document.getElementById('btn-ready').style.visibility = 'visible';
       }
     }, delay);
+  }
+
+  // ── 포토 레이아웃 렌더 (1/2/3/4컷) ───────────────────────
+  const VARIANT_META = {
+    one:   { title: '인생한컷', sub: '딱 한 장의 결정적 순간' },
+    two:   { title: '인생두컷', sub: '아쉬운 듯 아쉽지 않은 투샷' },
+    three: { title: '인생세컷', sub: '연속된 표정의 흐름' },
+    four:  { title: '인생네컷', sub: '완전체 풀세트 완성!' },
+  };
+  const EXPR_LABEL_SHORT = { neutral: '기본표정', wink_left: '왼쪽윙크', wink_right: '오른쪽윙크', tongue: '메롱' };
+  const EXPR_CAPTION = { neutral: '기본표정으로', wink_left: '왼쪽윙크로', wink_right: '오른쪽윙크로', tongue: '메롱으로' };
+
+  function renderPhotoLayout(photos, nickname) {
+    const area = document.getElementById('photo-result-area');
+    const count = Math.max(1, Math.min(4, photos.length));
+    const variant = count === 1 ? 'one' : count === 2 ? 'two' : count === 3 ? 'three' : 'four';
+    const todayStr = '2026.05.27';
+    const nick = nickname || '플레이어';
+
+    const photoImg = (p) => {
+      if (p && p.photo) return `<img src="${p.photo}" alt="${p.expr || ''}">`;
+      return '';
+    };
+
+    if (variant === 'one') {
+      const p = photos[0];
+      const cap = EXPR_CAPTION[p?.expr] ? `"${EXPR_CAPTION[p.expr]} 살았다"` : '"살았다"';
+      area.innerHTML = `<div class="layout-one">
+        <div class="one-stage">
+          <div class="one-polaroid">
+            <div class="one-photo">${photoImg(p)}<div class="one-photo-glow"></div></div>
+            <div class="one-caption">
+              <div class="one-caption-line hand">${cap}</div>
+              <div class="one-caption-meta">
+                <span class="mono">${nick} · ${todayStr}</span>
+                <span class="one-stamp">DBDBDIP</span>
+              </div>
+            </div>
+            <div class="one-tape one-tape-tl"></div>
+            <div class="one-tape one-tape-tr"></div>
+          </div>
+          <div class="one-deco one-deco-star">✦</div>
+          <div class="one-deco one-deco-sparkle">✦</div>
+          <div class="one-deco one-deco-dot"></div>
+        </div>
+      </div>`;
+
+    } else if (variant === 'two') {
+      const filled = [...photos];
+      while (filled.length < 2) filled.push(null);
+      area.innerHTML = `<div class="layout-two">
+        <div class="two-paper">
+          <div class="two-paper-eyebrow mono">DBDB · DIPTYCH NO.02</div>
+          <div class="two-grid">
+            ${filled.slice(0,2).map((p, i) => `
+            <div class="two-card two-card-${i}">
+              <div class="two-tape"></div>
+              <div class="two-photo">${photoImg(p)}</div>
+              <div class="two-meta">
+                <span class="mono">#${String(i+1).padStart(2,'0')}</span>
+                <span>${EXPR_LABEL_SHORT[p?.expr] || '—'}</span>
+              </div>
+            </div>`).join('')}
+          </div>
+          <div class="two-footer">
+            <div class="two-footer-line"></div>
+            <div class="hand two-footer-text">"${nick} & 병재 · 잊지 못할 한 판"</div>
+          </div>
+        </div>
+      </div>`;
+
+    } else if (variant === 'three') {
+      const filled = [...photos];
+      while (filled.length < 3) filled.push(null);
+      area.innerHTML = `<div class="layout-three">
+        <div class="three-strip">
+          <div class="three-header">
+            <div class="three-header-name hand">${nick}'s</div>
+            <div class="three-header-title">3-CUT</div>
+            <div class="three-header-line"></div>
+          </div>
+          ${filled.slice(0,3).map((p, i) => `
+          <div class="three-cell">
+            <div class="three-num">0${i+1}</div>
+            <div class="three-photo">${photoImg(p)}<div class="three-perforations"></div></div>
+            <div class="three-cell-meta">
+              <span>${EXPR_LABEL_SHORT[p?.expr] || '—'}</span>
+              <span class="three-cell-bar"></span>
+              <span>SAFE</span>
+            </div>
+          </div>`).join('')}
+          <div class="three-footer">
+            <span>● REC</span>
+            <span>디비디비딥 / 2026</span>
+          </div>
+        </div>
+        <div class="three-side">
+          <div class="three-side-eyebrow">3컷 시퀀스</div>
+          <div class="three-side-text">한 컷이 부족해 아쉬워요.<br>근데 본인이 봐도 웃기죠? ㅋㅋ</div>
+        </div>
+      </div>`;
+
+    } else {
+      // four
+      const filled = [...photos];
+      while (filled.length < 4) filled.push(null);
+      const confettiHTML = Array.from({length: 14}).map((_, i) =>
+        `<span class="confetti-piece confetti-${i%4}" style="--i:${i};left:${(i*7)%100}%"></span>`
+      ).join('');
+      area.innerHTML = `<div class="layout-four">
+        <div class="four-strip">
+          <div class="four-strip-head">
+            <div class="four-strip-logo">병재디비디비</div>
+            <div class="four-strip-date mono">${todayStr}</div>
+          </div>
+          ${filled.slice(0,4).map((p, i) => `
+          <div class="four-cell">
+            <div class="four-photo">${photoImg(p)}<span class="four-stamp">#${String(i+1).padStart(2,'0')}</span></div>
+          </div>`).join('')}
+          <div class="four-strip-foot hand">${nick} · MVP</div>
+        </div>
+        <div class="four-sticker four-sticker-1"><div>PERFECT<br>4 / 4</div></div>
+        <div class="four-sticker four-sticker-2"><span class="hand">대박!</span></div>
+        <div class="four-confetti">${confettiHTML}</div>
+      </div>`;
+    }
   }
 
   // ── 게임 오버 ──────────────────────────────────────────────
@@ -965,19 +1159,16 @@
     scoreEl.textContent = `SCORE · ${score}점`;
     scoreEl.style.display = 'inline-block';
 
-    document.getElementById('s4-sub').textContent = `${state.playerName} · ${state.defenseStreak}/${MAX_ROUNDS} 방어`;
+    // 변형 메타
+    const count = Math.max(1, Math.min(4, state.roundPhotos.length));
+    const variantKey = count === 1 ? 'one' : count === 2 ? 'two' : count === 3 ? 'three' : 'four';
+    const meta = VARIANT_META[variantKey];
+    document.getElementById('s4-sub').innerHTML =
+      `${state.playerName} 님의 <strong>${meta.title}</strong>이 완성됐어요 · <span style="color:var(--ink-mute)">${meta.sub}</span>`;
 
-    // 인생네컷 포토 스트립 — 실제 촬영된 유저 표정만 사용
-    const photos = state.roundPhotos; // { expr, photo } 배열, 패딩 없음
-    document.getElementById('photo-strip').innerHTML = photos.map((p,i) => {
-      const imgEl = p.photo
-        ? `<img src="${p.photo}" alt="${p.expr}">`
-        : `<img src="assets/${p.expr || 'neutral'}.jpg" alt="${p.expr}">`;
-      return `<div class="strip-photo">
-        <span class="strip-stamp">#${String(i+1).padStart(2,'0')}</span>
-        ${imgEl}
-      </div>`;
-    }).join('');
+    // 포토 레이아웃 렌더 (1/2/3/4컷)
+    const photos = state.roundPhotos;
+    renderPhotoLayout(photos, state.playerName);
 
     // 랭킹 저장 (항상)
     const list = loadRanking();
@@ -1085,73 +1276,85 @@
     });
   }
 
+  // object-fit: cover 방식으로 이미지 그리기 (비율 유지, 잘라서 채우기)
+  function _drawImgCover(ctx, img, dx, dy, dw, dh) {
+    const srcR = img.width / img.height;
+    const dstR = dw / dh;
+    let sx, sy, sw, sh;
+    if (srcR > dstR) {
+      sh = img.height; sw = sh * dstR;
+      sx = (img.width - sw) / 2; sy = 0;
+    } else {
+      sw = img.width; sh = sw / dstR;
+      sx = 0; sy = (img.height - sh) / 2;
+    }
+    ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
+  }
+
   async function generateShareCanvas() {
-    await document.fonts.ready; // 폰트 로드 대기
+    await document.fonts.ready;
 
-    const photos   = state.roundPhotos;
-    const won      = state.defenseStreak >= MAX_ROUNDS;
-    const score    = calcScore(state.defenseStreak);
-    const n        = photos.length;
+    const photos = state.roundPhotos;
+    const won    = state.defenseStreak >= MAX_ROUNDS;
+    const score  = calcScore(state.defenseStreak);
+    const n      = photos.length;
 
-    // 캔버스 치수
-    const CW       = 360;
+    // ── 2× 고해상도 렌더링 ────────────────────────────────
+    const SCALE    = 2;          // 논리 좌표는 그대로, 픽셀만 2배
+    const LW       = 360;        // 논리 폭 (px)
     const PAD      = 18;
-    const HEADER_H = 80;
-    const FOOTER_H = 64;
-    const GAP      = 6;
-    const PH       = 120;  // photo height
-    const PW       = CW - PAD * 2 - 20; // photo width inside strip
-    const STRIP_PT = 16, STRIP_PB = 44; // strip padding top/bottom
+    const HEADER_H = 88;
+    const FOOTER_H = 56;
+    const GAP      = 8;
+    const PH       = 140;        // photo height (논리)
+    const PW       = LW - PAD * 2 - 20;
+    const STRIP_PT = 18, STRIP_PB = 48;
     const STRIP_H  = STRIP_PT + n * PH + Math.max(0, n - 1) * GAP + STRIP_PB;
-    const CH       = HEADER_H + STRIP_H + FOOTER_H + PAD * 2;
+    const LH       = HEADER_H + STRIP_H + FOOTER_H + PAD * 2;
 
     const canvas   = document.createElement('canvas');
-    canvas.width   = CW;
-    canvas.height  = CH;
+    canvas.width   = LW * SCALE;
+    canvas.height  = LH * SCALE;
     const ctx      = canvas.getContext('2d');
+    ctx.scale(SCALE, SCALE);     // 이후 모든 좌표는 논리 좌표 그대로
 
     // ── 배경 ──────────────────────────────────────────────
     ctx.fillStyle = '#F5F1E8';
-    ctx.fillRect(0, 0, CW, CH);
+    ctx.fillRect(0, 0, LW, LH);
 
     // ── 헤더 텍스트 ───────────────────────────────────────
     ctx.textAlign = 'center';
-    // 브랜드
     ctx.fillStyle = '#8B7F70';
     ctx.font = '600 11px "JetBrains Mono", monospace';
-    ctx.letterSpacing = '0.2em';
-    ctx.fillText('FACE.AI · 디비디비딥', CW / 2, PAD + 18);
+    ctx.fillText('FACE GAME · 페이스 디비디비딥', LW / 2, PAD + 18);
 
-    // 결과 제목
     ctx.fillStyle = '#1A1714';
-    ctx.font = `700 ${won ? 32 : 28}px "Gaegu", cursive`;
-    ctx.fillText(won ? '내가 챔피언! 🏆' : '아쉽다… 😅', CW / 2, PAD + 50);
+    ctx.font = `700 ${won ? 30 : 26}px "Gaegu", cursive`;
+    ctx.fillText(won ? '내가 챔피언! 🏆' : '아쉽다… 😅', LW / 2, PAD + 50);
 
-    // 스코어 배지
-    const scoreText = `SCORE · ${score}점  ${state.playerName} · ${state.defenseStreak}/${MAX_ROUNDS} 방어`;
-    ctx.font = '700 12px "JetBrains Mono", monospace';
-    const sw = ctx.measureText(scoreText).width + 24;
-    const sx = (CW - sw) / 2, sy = PAD + 58;
-    _roundRect(ctx, sx, sy, sw, 22, 11);
-    ctx.fillStyle = '#FFE9E3';
-    ctx.fill();
-    ctx.strokeStyle = '#FF4D2E';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
+    const variantKey = n === 1 ? 'one' : n === 2 ? 'two' : n === 3 ? 'three' : 'four';
+    const variantTitle = VARIANT_META[variantKey]?.title || '인생네컷';
+    const subLine = `${state.playerName} · ${variantTitle} · ${state.defenseStreak}/${MAX_ROUNDS} 방어`;
+    ctx.font = '700 11px "JetBrains Mono", monospace';
+    const sw2 = ctx.measureText(subLine).width + 24;
+    const sx2 = (LW - sw2) / 2, sy2 = PAD + 58;
+    _roundRect(ctx, sx2, sy2, sw2, 22, 11);
+    ctx.fillStyle = '#FFE9E3'; ctx.fill();
+    ctx.strokeStyle = '#FF4D2E'; ctx.lineWidth = 1.5; ctx.stroke();
     ctx.fillStyle = '#FF4D2E';
-    ctx.fillText(scoreText, CW / 2, sy + 15);
+    ctx.fillText(subLine, LW / 2, sy2 + 15);
 
-    // ── 포토 스트립 배경 (검정) ───────────────────────────
+    // ── 포토 스트립 (검정 배경) ───────────────────────────
     const stripX = PAD;
     const stripY = HEADER_H + PAD;
-    _roundRect(ctx, stripX, stripY, CW - PAD * 2, STRIP_H, 10);
+    _roundRect(ctx, stripX, stripY, LW - PAD * 2, STRIP_H, 10);
     ctx.fillStyle = '#1A1714';
-    ctx.shadowColor = 'rgba(255,77,46,0.4)';
-    ctx.shadowOffsetX = 5; ctx.shadowOffsetY = 7;
+    ctx.shadowColor = 'rgba(255,77,46,0.35)';
+    ctx.shadowOffsetX = 4; ctx.shadowOffsetY = 6; ctx.shadowBlur = 0;
     ctx.fill();
     ctx.shadowColor = 'transparent';
 
-    // ── 각 사진 ───────────────────────────────────────────
+    // ── 각 사진 (cover 방식으로 비율 유지) ───────────────
     const imgs = await Promise.all(photos.map(p => _loadImg(p.photo)));
 
     for (let i = 0; i < n; i++) {
@@ -1163,37 +1366,35 @@
       ctx.clip();
 
       if (imgs[i]) {
-        ctx.drawImage(imgs[i], px, py, PW, PH);
+        _drawImgCover(ctx, imgs[i], px, py, PW, PH);
       } else {
         ctx.fillStyle = '#2a2520';
         ctx.fillRect(px, py, PW, PH);
       }
       ctx.restore();
 
-      // 사진 번호 스탬프
-      ctx.fillStyle = 'rgba(255,255,255,0.55)';
-      ctx.font = '600 8px "JetBrains Mono", monospace';
+      // 스탬프 & 표정 레이블
+      ctx.fillStyle = 'rgba(255,255,255,0.6)';
+      ctx.font = '600 9px "JetBrains Mono", monospace';
       ctx.textAlign = 'left';
-      ctx.fillText(`#${String(i + 1).padStart(2, '0')}`, px + 5, py + 13);
-
-      // 표정 레이블
+      ctx.fillText(`#${String(i + 1).padStart(2, '0')}`, px + 6, py + 15);
       const exprLabel = EXPRESSION_LABEL[photos[i].expr] || '';
       ctx.textAlign = 'right';
-      ctx.fillText(exprLabel, px + PW - 5, py + 13);
+      ctx.fillText(exprLabel, px + PW - 6, py + 15);
     }
 
     // 스트립 하단 텍스트
-    ctx.fillStyle = 'rgba(255,255,255,0.75)';
-    ctx.font = '400 11px "Gaegu", cursive';
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.font = '400 12px "Gaegu", cursive';
     ctx.textAlign = 'center';
-    ctx.fillText('페이스 디비디비딥 · 2026', CW / 2, stripY + STRIP_H - 16);
+    ctx.fillText('페이스 디비디비딥 · 2026', LW / 2, stripY + STRIP_H - 16);
 
     // ── 푸터 ──────────────────────────────────────────────
     const fy = stripY + STRIP_H + 14;
     ctx.fillStyle = '#8B7F70';
     ctx.font = '600 10px "JetBrains Mono", monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('face.ai · BETA · play now!', CW / 2, fy + 14);
+    ctx.fillText('face.dibidibideep.game', LW / 2, fy + 14);
 
     return canvas;
   }

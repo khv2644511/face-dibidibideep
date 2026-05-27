@@ -1,0 +1,9 @@
+.vercel
+.DS_Store
+*.DS_Store
+.superpowers/
+ui_mobile/
+ui_reference/
+docs/
+*.zip
+start.py
