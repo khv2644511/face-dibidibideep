@@ -733,7 +733,7 @@
   const LEFT_EYE  = [33,160,158,133,153,144];
   const RIGHT_EYE = [362,385,387,263,373,380];
   const MOUTH_TOP=13, MOUTH_BOTTOM=14, MOUTH_LEFT=78, MOUTH_RIGHT=308;
-  const EAR_THRESHOLD=0.2, EAR_OPEN=0.25, MAR_THRESHOLD=0.4;
+  const EAR_THRESHOLD=0.21, EAR_OPEN=0.24, MAR_THRESHOLD=0.38;
 
   function calcEAR(lm, idx) {
     const p = idx.map(i => lm[i]);
@@ -750,11 +750,30 @@
     return 'neutral';
   }
 
+  // ── 표정 버퍼 (최근 5프레임, 다수결로 안정화) ─────────────
+  const EXPR_BUF_SIZE = 5;
+  const _exprBuf = [];
+  function stableExpression() {
+    // 버퍼가 충분히 안 쌓였으면 최신 단일 값 사용
+    if (_exprBuf.length < 3) return detectExpression(state.lastLandmarks);
+    const freq = {};
+    for (const e of _exprBuf) freq[e] = (freq[e] || 0) + 1;
+    return Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
+  }
+
   // ── FaceMesh 초기화 ────────────────────────────────────────
   async function initFaceMesh(video) {
     const fm = new FaceMesh({ locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}` });
     fm.setOptions({ maxNumFaces:1, refineLandmarks:true, minDetectionConfidence:0.5, minTrackingConfidence:0.5 });
-    fm.onResults(r => { state.lastLandmarks = r.multiFaceLandmarks?.[0] || null; });
+    fm.onResults(r => {
+      state.lastLandmarks = r.multiFaceLandmarks?.[0] || null;
+      // 매 프레임마다 버퍼 갱신
+      const expr = detectExpression(state.lastLandmarks);
+      if (expr) {
+        _exprBuf.push(expr);
+        if (_exprBuf.length > EXPR_BUF_SIZE) _exprBuf.shift();
+      }
+    });
     await fm.initialize();
     state.faceMesh = fm;
     return fm;
@@ -763,7 +782,8 @@
     return new Promise((res, rej) => {
       const cam = new Camera(video, {
         onFrame: async () => { await fm.send({ image: video }); },
-        width: 320, height: 240,
+        width: 640, height: 480,
+        facingMode: 'user',
       });
       cam.start().then(() => { state.camera=cam; state.videoEl=video; res(cam); }).catch(rej);
     });
@@ -907,6 +927,7 @@
   // ── 라운드 시작 ────────────────────────────────────────────
   function startRound() {
     state.totalRounds++;
+    _exprBuf.length = 0; // 이전 라운드 버퍼 초기화
     document.getElementById('btn-ready').style.visibility = 'hidden';
 
     const promptEl = document.getElementById('action-prompt');
@@ -957,7 +978,7 @@
 
   // ── 라운드 판정 ────────────────────────────────────────────
   function resolveRound() {
-    const playerExpr = detectExpression(state.lastLandmarks);
+    const playerExpr = stableExpression();
 
     // 얼굴 미감지일 때만 재시도 (neutral은 유효 표정)
     if (!playerExpr) {
