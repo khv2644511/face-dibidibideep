@@ -733,7 +733,11 @@
   const LEFT_EYE  = [33,160,158,133,153,144];
   const RIGHT_EYE = [362,385,387,263,373,380];
   const MOUTH_TOP=13, MOUTH_BOTTOM=14, MOUTH_LEFT=78, MOUTH_RIGHT=308;
-  const EAR_THRESHOLD=0.21, EAR_OPEN=0.24, MAR_THRESHOLD=0.38;
+  const MAR_THRESHOLD=0.38;
+  // 비율 기반 윙크: 한쪽 EAR이 반대쪽의 WINK_RATIO 이하 → 윙크
+  // 절댓값 대신 두 눈 비율 비교라 사람마다 다른 눈 크기·거리에 강건함
+  const WINK_RATIO = 0.60;   // 닫힌 쪽 EAR < 열린 쪽 EAR * 0.60
+  const MIN_OPEN_EAR = 0.18; // 열린 눈 최소값 (양 눈 다 감긴 경우 차단)
 
   function calcEAR(lm, idx) {
     const p = idx.map(i => lm[i]);
@@ -741,12 +745,14 @@
   }
   function detectExpression(lm) {
     if (!lm || !lm.length) return null;
+    // 메롱 우선 판정
     const mH = Math.hypot(lm[MOUTH_TOP].x-lm[MOUTH_BOTTOM].x, lm[MOUTH_TOP].y-lm[MOUTH_BOTTOM].y);
     const mW = Math.hypot(lm[MOUTH_LEFT].x-lm[MOUTH_RIGHT].x, lm[MOUTH_LEFT].y-lm[MOUTH_RIGHT].y);
     if (mW > 0 && mH/mW > MAR_THRESHOLD) return 'tongue';
+    // 비율 기반 윙크 판정
     const le = calcEAR(lm, LEFT_EYE), re = calcEAR(lm, RIGHT_EYE);
-    if (le < EAR_THRESHOLD && re > EAR_OPEN) return 'wink_right';
-    if (re < EAR_THRESHOLD && le > EAR_OPEN) return 'wink_left';
+    if (le < re * WINK_RATIO && re > MIN_OPEN_EAR) return 'wink_right';
+    if (re < le * WINK_RATIO && le > MIN_OPEN_EAR) return 'wink_left';
     return 'neutral';
   }
 
