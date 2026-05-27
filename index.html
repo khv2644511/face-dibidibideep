@@ -465,6 +465,88 @@
     @keyframes toast-in { from { opacity: 0; transform: translateX(-50%) translateY(12px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
 
     /* ════════════════════════════════
+       SCENE 2 — HOW TO PLAY
+    ════════════════════════════════ */
+    #scene-howto {
+      flex-direction: column; align-items: center; text-align: center;
+      padding: 40px 32px 36px; gap: 0;
+    }
+    .s2-eyebrow { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 0.3em; color: var(--ink-mute); font-weight: 700; margin-bottom: 12px; }
+    .s2-title { font-size: 30px; font-weight: 900; letter-spacing: -0.03em; margin-bottom: 28px; }
+
+    /* 병재 원형 사진 + 말풍선 영역 */
+    .s2-hero { display: flex; align-items: center; justify-content: center; margin-bottom: 28px; width: 100%; }
+    .s2-circle-wrap { position: relative; flex-shrink: 0; }
+    .s2-circle {
+      width: 110px; height: 110px; border-radius: 50%;
+      border: 2.5px dashed var(--ink); background: var(--paper);
+      overflow: hidden; position: relative; z-index: 1;
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+    .s2-circle img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    /* 테이프 장식 (노란) */
+    .s2-tape {
+      position: absolute; width: 56px; height: 18px;
+      background: rgba(255,224,102,0.82); border: 1px dashed rgba(0,0,0,0.18); z-index: 2;
+    }
+    .s2-tape-1 { top: -6px; left: 10px; transform: rotate(-22deg); }
+    .s2-tape-2 { bottom: -4px; right: 10px; transform: rotate(18deg); }
+    /* 말풍선 */
+    .s2-bubble {
+      position: relative; margin-left: 14px;
+      background: var(--paper); border: 1.5px solid var(--ink);
+      border-radius: 14px; padding: 12px 16px;
+      font-size: 13px; line-height: 1.55; color: var(--ink-soft);
+      max-width: 220px; text-align: left;
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+    /* 말풍선 꼬리 (왼쪽을 향함 — 병재 쪽) */
+    .s2-bubble::before {
+      content: '';
+      position: absolute; left: -10px; top: 20px;
+      border: 8px solid transparent;
+      border-right-color: var(--ink);
+      border-left: none;
+    }
+    .s2-bubble::after {
+      content: '';
+      position: absolute; left: -8px; top: 21px;
+      border: 7px solid transparent;
+      border-right-color: var(--paper);
+      border-left: none;
+    }
+    .s2-bubble strong { color: var(--ink); font-weight: 800; }
+
+    /* 룰 카드 3개 */
+    .s2-rules { width: 100%; max-width: 460px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; text-align: left; }
+    .s2-rule-card {
+      display: flex; align-items: flex-start; gap: 14px;
+      background: var(--paper); border: 1.5px solid var(--ink); border-radius: 14px;
+      padding: 14px 16px; box-shadow: 3px 3px 0 var(--ink);
+    }
+    .s2-rule-num {
+      font-family: "JetBrains Mono", monospace; font-size: 18px; font-weight: 900;
+      color: var(--accent); line-height: 1; flex-shrink: 0; width: 28px; padding-top: 1px;
+    }
+    .s2-rule-body { flex: 1; min-width: 0; }
+    .s2-rule-title { font-size: 14px; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 2px; }
+    .s2-rule-desc { font-size: 12px; color: var(--ink-soft); line-height: 1.5; }
+
+    /* 시작 버튼 */
+    .s2-start-btn {
+      width: 100%; max-width: 460px;
+      padding: 16px 24px;
+      background: var(--accent); color: #FFF;
+      border: 1.5px solid var(--ink); border-radius: 14px;
+      font-size: 16px; font-weight: 900; letter-spacing: -0.01em;
+      box-shadow: 4px 4px 0 var(--ink);
+      transition: all 100ms ease;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-family: inherit;
+    }
+    .s2-start-btn:active { transform: translate(3px,3px); box-shadow: 0 0 0 var(--ink); }
+
+    /* ════════════════════════════════
        MOBILE RESPONSIVE
     ════════════════════════════════ */
     @media (max-width: 640px) {
@@ -477,6 +559,14 @@
       /* Title */
       #scene-title { padding: 36px 24px 28px; min-height: auto; }
       .s1-title { font-size: 52px; }
+
+      /* How To Play */
+      #scene-howto { padding: 32px 20px 28px; }
+      .s2-title { font-size: 24px; }
+      .s2-circle { width: 88px; height: 88px; }
+      .s2-bubble { font-size: 12px; max-width: 175px; padding: 10px 13px; }
+      .s2-rules { max-width: 100%; }
+      .s2-start-btn { max-width: 100%; }
       .deco-1, .deco-4 { left: 2%; } .deco-2, .deco-3 { right: 2%; }
 
       /* Game scene — vertical stack */
@@ -559,6 +649,56 @@
       <button id="btn-start" class="btn-primary" disabled>시작하기 →</button>
     </div>
     <video id="webcam-video-init" style="display:none" playsinline></video>
+  </div>
+
+  <!-- ════════ Scene 2: 게임 방법 ════════ -->
+  <div id="scene-howto" class="scene">
+    <div class="s2-eyebrow">HOW TO PLAY</div>
+    <h2 class="s2-title">AI의 표정을 피해라!</h2>
+
+    <!-- 병재 원형 사진 + 말풍선 -->
+    <div class="s2-hero">
+      <div class="s2-circle-wrap">
+        <div class="s2-circle">
+          <img src="assets/neutral.jpg" alt="병재">
+        </div>
+        <div class="s2-tape s2-tape-1"></div>
+        <div class="s2-tape s2-tape-2"></div>
+      </div>
+      <div class="s2-bubble">
+        <strong>내 표정 따라하면</strong><br>
+        잡아버릴 거야~! 😏<br>
+        <span style="font-size:11px;color:var(--ink-mute)">4번 막아내면 네 승리!</span>
+      </div>
+    </div>
+
+    <!-- 룰 카드 3장 -->
+    <div class="s2-rules">
+      <div class="s2-rule-card">
+        <div class="s2-rule-num">01</div>
+        <div class="s2-rule-body">
+          <div class="s2-rule-title">디비디비딥!</div>
+          <div class="s2-rule-desc">AI가 "디비디비딥!"을 외치며 표정을 결정해요.</div>
+        </div>
+      </div>
+      <div class="s2-rule-card">
+        <div class="s2-rule-num">02</div>
+        <div class="s2-rule-body">
+          <div class="s2-rule-title">표정을 선택하세요</div>
+          <div class="s2-rule-desc">왼쪽 윙크·오른쪽 윙크·메롱·기본표정 중 하나를 웹캠으로 보여주세요.</div>
+        </div>
+      </div>
+      <div class="s2-rule-card">
+        <div class="s2-rule-num">03</div>
+        <div class="s2-rule-body">
+          <div class="s2-rule-title">AI와 달라야 살아요!</div>
+          <div class="s2-rule-desc">같은 표정이면 OUT! 4번 연속으로 막으면 최종 승리! 🏆</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 시작 버튼 -->
+    <button id="btn-howto-start" class="s2-start-btn">시작 →</button>
   </div>
 
   <!-- ════════ Scene 3: 게임 라운드 ════════ -->
@@ -715,8 +855,9 @@
   // ── 씬 전환 ────────────────────────────────────────────────
   const SCENE_LABELS = {
     'scene-title':    '01 / 타이틀',
-    'scene-game':     '02 / 라운드',
-    'scene-gameover': '03 / 결과',
+    'scene-howto':    '02 / 게임 방법',
+    'scene-game':     '03 / 라운드',
+    'scene-gameover': '04 / 결과',
   };
   function showScene(id) {
     document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
@@ -843,6 +984,10 @@
       state.totalRounds = 0;
       state.roundPhotos = [];
       state.photoCount = 0;
+      showScene('scene-howto');
+    });
+
+    document.getElementById('btn-howto-start').addEventListener('click', () => {
       startGameScene();
     });
   })();
